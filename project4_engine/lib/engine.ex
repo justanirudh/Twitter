@@ -12,10 +12,14 @@ defmodule Engine do
         #TODO implement this
     end
 
-    defp get_latest_tweets(tweets_ts) do
+    defp get_latest_tweets(tweetsIds) do
         #TODO implement this
+
+        #list of (tweets,timestamps)
+        tweets_ts = Enum.map(tweetIds, fn(tweetId) -> GenServer.call(:tt, {:get, tweetId})  end)
+        
         #arrange in decreasing order of timestamps
-        #get first #feed_lin tweets
+        #get first #feed_lim tweets
     end
 
     #register
@@ -29,13 +33,18 @@ defmodule Engine do
         #list of userids
         subscribed_to_list = GenServer.call(:uss, {:get, :subscribed_to, userId})
         #list of tweetids
-        tweetids = Enum.flat_map(subscribed_to_list, fn(userId) -> GenServer.call(:ut, {:get, userId}) end)
-        #list of (tweets,timestamps)
-        tweets_ts = Enum.map(tweetids, fn(tweetId) -> GenServer.call(:tt, {:get, tweetId})  end)
+        tweetIds = Enum.flat_map(subscribed_to_list, fn(userId) -> GenServer.call(:ut, {:get, userId}) end)
         #list of tweets
-        tweets = get_latest_tweets(tweets_ts)    
-        #TODO finish this
+        tweets = get_latest_tweets(tweetIds)    
         {:reply, tweets, state} 
+    end
+
+    #hashtags
+    def handle_call({:hashtag, hashtag}, _from, state) do
+        tweetIds = GenServer.call(:ht, {:get, hashtag})
+        #list of tweets
+        tweets = get_latest_tweets(tweetIds) 
+        {:reply, tweets, state}    
     end
 
     #tweet
@@ -61,13 +70,13 @@ defmodule Engine do
         {:noreply, state} 
     end
 
-
-
     #retweet
     def handle_cast({:retweet, userId, tweet}, state) do
-        #TODO: use feed to get last 20
-        GenServer.cast(:ut, {:uit, userId, tweet})
+        #TODO: logic to a. get feed, b. select 1 at random, c. retweet that on client side
+        #Add extra func. if reqd. for Part-II. else merge with tweet
+        GenServer.cast(:e, {:tweet, userId, tweet})
         {:noreply, state} 
     end
+
     
 end
