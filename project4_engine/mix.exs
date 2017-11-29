@@ -21,7 +21,7 @@ defmodule TwitterEngine.Mixfile do
 
   #Run as an executable
   def escript do
-    [main_module: GossipSimulator,
+    [main_module: TwitterEngine,
     emu_args: [ "+P 5000000" ]]
   end
 
