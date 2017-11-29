@@ -47,6 +47,14 @@ defmodule Engine do
         {:reply, tweets, state}    
     end
 
+    #mentions
+    def handle_call({:mention, mention}, _from, state) do
+        tweetIds = GenServer.call(:mt, {:get, mention})
+        #list of tweets
+        tweets = get_latest_tweets(tweetIds) 
+        {:reply, tweets, state}    
+    end
+
     #tweet
     def handle_cast({:tweet, userId, tweet}, state) do
         curr_time = System.monotonic_time(:microsecond)
