@@ -1,6 +1,5 @@
 defmodule UserIdSubscribedtoSubscribers do
     use GenServer
-    #state: curr_user_id
 
     def init(state) do
         :ets.new(:uss_table, [:set, :public, :named_table])
@@ -9,7 +8,7 @@ defmodule UserIdSubscribedtoSubscribers do
 
     def handle_call({:insert, userId}, _from, state) do
         #TODO implement this
-        {:reply, :ok, state + 1}
+        {:reply, :ok, state}
     end
 
     def handle_call({:get, :subscribed_to, userId}, _from, state) do

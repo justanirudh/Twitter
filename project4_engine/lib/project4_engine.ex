@@ -15,14 +15,14 @@ defmodule TwitterEngine do
     self() |> Process.register(:master)
 
     #5 tables
-    elem(GenServer.start_link(UserIdSubscribersSubscribedto, 0), 1) |> Process.register(:uss)
+    elem(GenServer.start_link(UserIdSubscribersSubscribedto, []), 1) |> Process.register(:uss)
     elem(GenServer.start_link(UserIdTweetIds, []), 1) |> Process.register(:ut)
     elem(GenServer.start_link(HashtagTweetIds, []), 1) |> Process.register(:ht)
     elem(GenServer.start_link(MentionTweetIds, []), 1) |> Process.register(:mt)
     elem(GenServer.start_link(TweetIdTweet, []), 1) |> Process.register(:tt)
 
     #engine
-    elem(GenServer.start_link(Engine, []), 1) |> Process.register(:e)
+    elem(GenServer.start_link(Engine, 0), 1) |> Process.register(:e)
 
     #loop infinitely
     loop()

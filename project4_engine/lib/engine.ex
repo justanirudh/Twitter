@@ -1,6 +1,7 @@
 defmodule Engine do
     use GenServer
     @feed_lim 20
+    #state: curr_user_id
 
     #TODO: spawn every task to a new 'Task' to not make engine the bottleneck
 
@@ -23,9 +24,9 @@ defmodule Engine do
     end
 
     #register
-    def handle_call({:register, userId}, _from, state) do
-        :ok = GenServer.call(:uss, {:insert, userId})
-        {:reply, :ok, state} 
+    def handle_call(:register, _from, state) do
+        :ok = GenServer.call(:uss, {:insert, state})
+        {:reply, state, state + 1} #reply their userid to client
     end
 
     #feed
