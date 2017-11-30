@@ -68,7 +68,7 @@ defmodule Engine do
         #add to tweet table
         GenServer.cast(:tt, {:insert, curr_tweet_id, tweet, curr_time})
         #add to hashtag table
-        GenServer.cast(:ht, {:insert, hashtags, curr_tweet_id})
+        GenServer.cast(:ht, {:insert_or_update, hashtags, curr_tweet_id})
         #add to mentions table
         GenServer.cast(:mt, {:insert, mentions, curr_tweet_id})
         
