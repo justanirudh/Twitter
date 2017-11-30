@@ -24,11 +24,27 @@ defmodule TwitterClient do
     :global.sync #sync global registry to let slave know of master being named :master
     master_node_pid = :global.whereis_name(:engine)
     
-    #testing
-    # user_id = GenServer.call(master_node_pid, :register)
-    # IO.inspect user_id
+    #register
+    user_id = GenServer.call(master_node_pid, :register)
+    IO.inspect user_id
 
-    GenServer.cast(master_node_pid, {:subscribe, :'1', :'0'})
+    #tweet
+    tweet = "my first tweet"
+    GenServer.cast(master_node_pid, {:tweet, user_id,tweet})
+    tweet = "my second tweet"
+    GenServer.cast(master_node_pid, {:tweet, user_id,tweet})
+    tweet = "my second tweet"
+    GenServer.cast(master_node_pid, {:tweet, user_id,tweet})
+    tweet = "my second tweet"
+    GenServer.cast(master_node_pid, {:tweet, user_id,tweet})
+    tweet = "my second tweet"
+    GenServer.cast(master_node_pid, {:tweet, user_id,tweet})
+    tweet = "my second tweet"
+    GenServer.cast(master_node_pid, {:tweet, user_id,tweet})
+
+
+    #subscribe
+    # GenServer.cast(master_node_pid, {:subscribe, :'1', :'0'})
 
   end
 end
