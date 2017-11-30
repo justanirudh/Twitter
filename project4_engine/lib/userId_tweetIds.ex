@@ -8,14 +8,20 @@ defmodule UserIdTweetIds do
 
     #insert/update
     def handle_cast({:insert_or_update, userId, curr_tweet_id}, state) do
-        #TODO implement this
+        if(:ets.lookup(:ut_table, userId) == []) do
+            :ets.insert(:ut_table, {userId, [curr_tweet_id]})
+        else
+            list = :ets.lookup(:ut_table, userId) |> Enum.at(0) |> elem(1)
+            :ets.delete(:ut_table, userId)
+            :ets.insert(:ut_table, {userId, [curr_tweet_id | list]})
+        end
         {:reply, :ok, state}
     end
 
     #get
     def handle_call({:get, userId}, _from, state) do
-        #TODO implement this
-        {:reply, :ok, state}
+        list = :ets.lookup(:ut_table, userId) |> Enum.at(0) |> elem(1)     
+        {:reply, list, state}
     end
 
     def handle_info(_msg, state) do #catch unexpected messages
