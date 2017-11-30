@@ -17,9 +17,10 @@ defmodule Engine do
         #list of (tweets,timestamps)
         #arrange in decreasing order of timestamps
         #get first @feed_lim tweets
-        Enum.map(tweetIds, fn(tweetId) -> GenServer.call(:tt, {:get, tweetId}) end) |> Enum.sort_by &(elem(&1, 1)) |> Enum.take(@feed_lim)
+        Enum.map(tweetIds, fn(tweetId) -> GenServer.call(:tt, {:get, tweetId}) end) 
+        |> (Enum.sort_by &(elem(&1, 1))) 
+        |> Enum.take(@feed_lim)
     end
-
 
     def init(state) do
         #epmd -daemon
@@ -28,7 +29,7 @@ defmodule Engine do
         {:ok, state}
     end
 
-    #register
+    #register - tested
     def handle_call(:register, _from, state) do
         curr_user_id_int = elem(state, 0)
         curr_user_id = curr_user_id_int |> Integer.to_string() |> String.to_atom()
@@ -69,21 +70,24 @@ defmodule Engine do
         curr_time = System.monotonic_time(:microsecond)
         hashtags = get_hashtags(tweet)
         mentions = get_mentions(tweet)
-        #add to user-tweet table
+        #add to userid-tweetids table
         curr_tweet_id_int = elem(state, 1)
         curr_tweet_id = curr_tweet_id_int |> Integer.to_string() |> String.to_atom()
         GenServer.cast(:ut, {:insert_or_update, userId, curr_tweet_id})
-        #add to tweet table
+        #add to tweetid-tweet-ts table
         GenServer.cast(:tt, {:insert, curr_tweet_id, tweet, curr_time})
-        #add to hashtag table
-        GenServer.cast(:ht, {:insert_or_update, hashtags, curr_tweet_id})
-        #add to mentions table
-        GenServer.cast(:mt, {:insert_or_update, mentions, curr_tweet_id})
-        
+        #add to hashtag-tweetid table
+        if(hashtags != []) do
+            GenServer.cast(:ht, {:insert_or_update, hashtags, curr_tweet_id})    
+        end     
+        #add to mention-tweedtid table
+        if(mentions != []) do
+            GenServer.cast(:mt, {:insert_or_update, mentions, curr_tweet_id})    
+        end
         {:noreply, {elem(state, 0), curr_tweet_id_int + 1}} 
     end
 
-    #subscribe
+    #subscribe - tested
     def handle_cast({:subscribe, userId, subscribeToId}, state) do
         IO.inspect "subscribing #{userId} to #{subscribeToId}"
         GenServer.cast(:uss, {:update, userId, subscribeToId})
