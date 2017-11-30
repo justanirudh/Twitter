@@ -20,14 +20,15 @@ defmodule Engine do
         tweets_ts = Enum.map(tweetIds, fn(tweetId) -> GenServer.call(:tt, {:get, tweetId})  end)
         
         #arrange in decreasing order of timestamps
-        #get first #feed_lim tweets
+        #get first @feed_lim tweets
     end
 
     #register
     def handle_call(:register, _from, state) do
-        curr_user_id = elem(state, 0)
+        curr_user_id_int = elem(state, 0)
+        curr_user_id = curr_user_id_int |> Integer.to_string() |> String.to_atom()
         :ok = GenServer.call(:uss, {:insert, curr_user_id})
-        {:reply, curr_user_id, {curr_user_id + 1, elem(state, 1) } } #reply their userid to client
+        {:reply, curr_user_id, {curr_user_id_int + 1, elem(state, 1) } } #reply their userid to client
     end
 
     #feed
@@ -63,7 +64,8 @@ defmodule Engine do
         hashtags = get_hashtags(tweet)
         mentions = get_mentions(tweet)
         #add to user-tweet table
-        curr_tweet_id = elem(state, 1)
+        curr_tweet_id_int = elem(state, 1)
+        curr_tweet_id = curr_tweet_id_int |> Integer.to_string() |> String.to_atom()
         GenServer.cast(:ut, {:insert_or_update, userId, curr_tweet_id})
         #add to tweet table
         GenServer.cast(:tt, {:insert, curr_tweet_id, tweet, curr_time})
@@ -72,7 +74,7 @@ defmodule Engine do
         #add to mentions table
         GenServer.cast(:mt, {:insert_or_update, mentions, curr_tweet_id})
         
-        {:noreply, state} 
+        {:noreply, {elem(state, 0), curr_tweet_id_int + 1}} 
     end
 
     #subscribe
