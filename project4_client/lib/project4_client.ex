@@ -29,18 +29,11 @@ defmodule TwitterClient do
     IO.inspect user_id
 
     #tweet
-    tweet = "my first tweet"
+    tweet = "my first tweet #hey @mom"
     GenServer.cast(master_node_pid, {:tweet, user_id,tweet})
-    tweet = "my second tweet"
+    tweet = "my second tweet #again_hey @dad"
     GenServer.cast(master_node_pid, {:tweet, user_id,tweet})
-    tweet = "my second tweet"
-    GenServer.cast(master_node_pid, {:tweet, user_id,tweet})
-    tweet = "my second tweet"
-    GenServer.cast(master_node_pid, {:tweet, user_id,tweet})
-    tweet = "my second tweet"
-    GenServer.cast(master_node_pid, {:tweet, user_id,tweet})
-    tweet = "my second tweet"
-    GenServer.cast(master_node_pid, {:tweet, user_id,tweet})
+    
 
 
     #subscribe

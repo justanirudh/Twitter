@@ -65,7 +65,7 @@ defmodule Engine do
         {:reply, tweets, state}    
     end
 
-    #tweet
+    #tweet-tested
     def handle_cast({:tweet, userId, tweet}, state) do
         curr_time = System.monotonic_time(:microsecond)
         hashtags = get_hashtags(tweet)

@@ -10,7 +10,9 @@ defmodule TweetIdTweet do
     #insert
     def handle_cast({:insert, curr_tweet_id, tweet, curr_time}, state) do
         :ets.insert(:tt_table, {curr_tweet_id, tweet, curr_time})
-        {:reply, :ok, state}
+        IO.inspect "tweetid-tweet-ts table entry:"
+        IO.inspect :ets.lookup(:tt_table, curr_tweet_id)
+        {:noreply, state}
     end
 
     #get
