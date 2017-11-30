@@ -8,14 +8,22 @@ defmodule HashtagTweetIds do
 
     #insert/update
     def handle_cast({:insert_or_update, hashtags, curr_tweet_id}, state) do
-        #TODO implement this
+        Enum.each(hashtags, fn(hashtag) -> 
+            if(:ets.lookup(:ht_table, hashtag) == []) do
+                :ets.insert(:ht_table, {hashtag, [curr_tweet_id]})
+            else
+                list = :ets.lookup(:ht_table, hashtag) |> Enum.at(0) |> elem(1)
+                :ets.delete(:ht_table, hashtag)
+                :ets.insert(:ht_table, {hashtag, [curr_tweet_id | list]})
+            end
+        end)
         {:reply, :ok, state}
     end
 
     #get
     def handle_call({:get, hashtag}, _from, state) do
-        #TODO implement this
-        {:reply, :ok, state}
+        list = :ets.lookup(:ht_table, hashtag) |> Enum.at(0) |> elem(1)     
+        {:reply, list, state}
     end
 
     def handle_info(_msg, state) do #catch unexpected messages
