@@ -12,7 +12,7 @@ defmodule Engine do
         #TODO implement this
     end
 
-    defp get_latest_tweets(tweetsIds) do
+    defp get_latest_tweets(tweetIds) do
         #TODO implement this
 
         #list of (tweets,timestamps)
