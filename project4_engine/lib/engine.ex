@@ -14,13 +14,10 @@ defmodule Engine do
     end
 
     defp get_latest_tweets(tweetIds) do
-        #TODO implement this
-
         #list of (tweets,timestamps)
-        tweets_ts = Enum.map(tweetIds, fn(tweetId) -> GenServer.call(:tt, {:get, tweetId})  end)
-        
         #arrange in decreasing order of timestamps
         #get first @feed_lim tweets
+        Enum.map(tweetIds, fn(tweetId) -> GenServer.call(:tt, {:get, tweetId}) end) |> Enum.sort_by &(elem(&1, 1)) |> Enum.take(@feed_lim)
     end
 
 
