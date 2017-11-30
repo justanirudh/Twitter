@@ -6,11 +6,11 @@ defmodule Engine do
     #TODO: spawn every task to a new 'Task' to not make engine the bottleneck
 
     defp get_hashtags(tweet) do
-        #TODO implement this
+        (String.split tweet) |> Enum.filter(fn(str) -> String.starts_with? str, "#" end)
     end
 
     defp get_mentions(tweet) do
-        #TODO implement this
+        (String.split tweet) |> Enum.filter(fn(str) -> String.starts_with? str, "@" end)
     end
 
     defp get_latest_tweets(tweetIds) do
