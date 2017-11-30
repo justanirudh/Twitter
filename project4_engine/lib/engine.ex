@@ -23,10 +23,19 @@ defmodule Engine do
         #get first @feed_lim tweets
     end
 
+
+    def init(state) do
+        #epmd -daemon
+        {:ok, _} = Node.start(String.to_atom("engine@127.0.0.1"))
+        Application.get_env(:p4, :cookie) |> Node.set_cookie
+        {:ok, state}
+    end
+
     #register
     def handle_call(:register, _from, state) do
         curr_user_id_int = elem(state, 0)
         curr_user_id = curr_user_id_int |> Integer.to_string() |> String.to_atom()
+        IO.inspect "registering user with id #{curr_user_id}"
         :ok = GenServer.call(:uss, {:insert, curr_user_id})
         {:reply, curr_user_id, {curr_user_id_int + 1, elem(state, 1) } } #reply their userid to client
     end
@@ -79,6 +88,7 @@ defmodule Engine do
 
     #subscribe
     def handle_cast({:subscribe, userId, subscribeToId}, state) do
+        IO.inspect "subscribing #{userId} to #{subscribeToId}"
         GenServer.cast(:uss, {:update, userId, subscribeToId})
         {:noreply, state} 
     end

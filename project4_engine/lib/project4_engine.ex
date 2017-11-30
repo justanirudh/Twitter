@@ -21,19 +21,7 @@ defmodule TwitterEngine do
     elem(GenServer.start_link(TweetIdTweet, []), 1) |> Process.register(:tt)
 
     #engine
-    elem(GenServer.start_link(Engine, {0,0}), 1) |> Process.register(:e)
-
-    #TODO: remove this: to check if cross node comm works
-    #epmd -daemon
-    master = self()
-    {:ok, _} = Node.start(String.to_atom("engine@127.0.0.1"))
-    app_name = :p4
-    Application.get_env(app_name, :cookie) |> Node.set_cookie #gets common cookie and sets the master's with it
-    :global.register_name(:master, master) #registers it for all connected nodes
-
-  receive do
-      {:from_client, msg} -> IO.inspect msg
-  end
+    :global.register_name(:engine, GenServer.start_link(Engine, {0,0}) |> elem(1)) 
 
     #loop infinitely
     loop()
