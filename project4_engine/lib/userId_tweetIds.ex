@@ -1,5 +1,6 @@
 defmodule UserIdTweetIds do
     use GenServer
+    #schema: userid atom, tweetids [:atom]
 
     def init(state) do
         :ets.new(:ut_table, [:set, :public, :named_table])

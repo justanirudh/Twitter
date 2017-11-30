@@ -1,6 +1,7 @@
 defmodule UserIdSubscribedtoSubscribers do
     use GenServer
     #schema: userid string, subscribed_to_id [], subscribers_ids []
+    #TODO remove inspects
 
     def init(state) do
         :ets.new(:uss_table, [:set, :public, :named_table])

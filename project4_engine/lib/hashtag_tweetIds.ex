@@ -1,5 +1,6 @@
 defmodule HashtagTweetIds do
     use GenServer
+    #schema: hashtag string, tweetids [:atom]
 
     def init(state) do
         :ets.new(:ht_table, [:set, :public, :named_table])
