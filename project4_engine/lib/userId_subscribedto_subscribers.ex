@@ -6,16 +6,19 @@ defmodule UserIdSubscribedtoSubscribers do
         {:ok, state}
     end
 
+    #insert
     def handle_call({:insert, userId}, _from, state) do
         #TODO implement this
         {:reply, :ok, state}
     end
 
+    #get
     def handle_call({:get, :subscribed_to, userId}, _from, state) do
         #TODO implement this
         {:reply, :ok, state}
     end
 
+    #update
     def handle_cast({:update, userId, subscribeToId}, state) do
         #TODO implement this
         {:noreply, state}

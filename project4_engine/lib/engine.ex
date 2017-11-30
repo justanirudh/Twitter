@@ -1,7 +1,7 @@
 defmodule Engine do
     use GenServer
     @feed_lim 20
-    #state: curr_user_id
+    #state: {curr_user_id, curr_tweet_id}
 
     #TODO: spawn every task to a new 'Task' to not make engine the bottleneck
 
@@ -25,8 +25,9 @@ defmodule Engine do
 
     #register
     def handle_call(:register, _from, state) do
-        :ok = GenServer.call(:uss, {:insert, state})
-        {:reply, state, state + 1} #reply their userid to client
+        curr_user_id = elem(state, 0)
+        :ok = GenServer.call(:uss, {:insert, curr_user_id})
+        {:reply, curr_user_id, {curr_user_id + 1, elem(state, 1) } } #reply their userid to client
     end
 
     #feed
@@ -61,14 +62,15 @@ defmodule Engine do
         curr_time = System.monotonic_time(:microsecond)
         hashtags = get_hashtags(tweet)
         mentions = get_mentions(tweet)
-        #add to ut table
-        tweetId = GenServer.call(:ut, {:insert, userId})
+        #add to user-tweet table
+        curr_tweet_id = elem(state, 1)
+        GenServer.cast(:ut, {:insert_or_update, userId, curr_tweet_id})
         #add to tweet table
-        GenServer.cast(:tt, {:insert, tweetId, tweet, curr_time})
+        GenServer.cast(:tt, {:insert, curr_tweet_id, tweet, curr_time})
         #add to hashtag table
-        GenServer.cast(:ht, {:insert, hashtags, tweetId})
+        GenServer.cast(:ht, {:insert, hashtags, curr_tweet_id})
         #add to mentions table
-        GenServer.cast(:mt, {:insert, mentions, tweetId})
+        GenServer.cast(:mt, {:insert, mentions, curr_tweet_id})
         
         {:noreply, state} 
     end

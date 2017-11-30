@@ -22,7 +22,7 @@ defmodule TwitterEngine do
     elem(GenServer.start_link(TweetIdTweet, []), 1) |> Process.register(:tt)
 
     #engine
-    elem(GenServer.start_link(Engine, 0), 1) |> Process.register(:e)
+    elem(GenServer.start_link(Engine, {0,0}), 1) |> Process.register(:e)
 
     #loop infinitely
     loop()
