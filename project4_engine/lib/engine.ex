@@ -1,6 +1,6 @@
 defmodule Engine do
     use GenServer
-    @feed_lim 2 #TODO change this to 20
+    @feed_lim 3 #TODO change this to 20
     #state: {curr_user_id, curr_tweet_id}
 
     #TODO: spawn every task to a new 'Task' to not make engine the bottleneck
@@ -39,7 +39,7 @@ defmodule Engine do
         {:reply, curr_user_id, {curr_user_id_int + 1, elem(state, 1) } } #reply their userid to client
     end
 
-    #feed
+    #feed-tested
     def handle_call({:feed, userId}, _from, state) do
         #list of userids
         subscribed_to_list = GenServer.call(:uss, {:get, :subscribed_to, userId})
@@ -50,7 +50,7 @@ defmodule Engine do
         {:reply, tweets, state} 
     end
 
-    #hashtags
+    #hashtags-tested
     def handle_call({:hashtag, hashtag}, _from, state) do
         tweetIds = GenServer.call(:ht, {:get, hashtag})
         #list of tweets
@@ -58,7 +58,7 @@ defmodule Engine do
         {:reply, tweets, state}    
     end
 
-    #mentions
+    #mentions-tested
     def handle_call({:mention, mention}, _from, state) do
         tweetIds = GenServer.call(:mt, {:get, mention})
         #list of tweets
