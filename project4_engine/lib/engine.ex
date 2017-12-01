@@ -1,9 +1,10 @@
 defmodule Engine do
     use GenServer
-    @feed_lim 3 #TODO change this to 20
+    @feed_lim 20
     #state: {curr_user_id, curr_tweet_id}
 
-    #TODO: spawn every task to a new 'Task' to not make engine the bottleneck
+    #TODO: spawn every task to a new 'Task' to not make engine the bottleneck?
+    #TODO remove inspects
 
     defp get_hashtags(tweet) do
         (String.split tweet) |> Enum.filter(fn(str) -> String.starts_with? str, "#" end)
