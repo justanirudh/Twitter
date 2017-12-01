@@ -1,6 +1,6 @@
 defmodule Engine do
     use GenServer
-    @feed_lim 20
+    @feed_lim 2 #TODO change this to 20
     #state: {curr_user_id, curr_tweet_id}
 
     #TODO: spawn every task to a new 'Task' to not make engine the bottleneck
@@ -18,8 +18,9 @@ defmodule Engine do
         #arrange in decreasing order of timestamps
         #get first @feed_lim tweets
         Enum.map(tweetIds, fn(tweetId) -> GenServer.call(:tt, {:get, tweetId}) end) 
-        |> (Enum.sort_by &(elem(&1, 1))) 
+        |> (Enum.sort_by &(elem(&1, 1)), &>=/2) 
         |> Enum.take(@feed_lim)
+        |> Enum.map(fn({tw,_}) -> tw end)
     end
 
     def init(state) do
