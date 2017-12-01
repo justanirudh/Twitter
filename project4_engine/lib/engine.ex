@@ -3,8 +3,9 @@ defmodule Engine do
     @feed_lim 20
     #state: {curr_user_id, curr_tweet_id}
 
-    #TODO: spawn every task to a new 'Task' to not make engine the bottleneck?
+    #TODO: spawn every task to a new 'Task' to not make engine the bottleneck?: for tweet, hashtag, mention and feed
     #TODO remove inspects
+    #TODO global counters for tweet, hashtag, mention and feed and calculate rates per sec (in real time)
 
     defp get_hashtags(tweet) do
         (String.split tweet) |> Enum.filter(fn(str) -> String.starts_with? str, "#" end)
