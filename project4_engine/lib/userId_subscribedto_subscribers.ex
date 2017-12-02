@@ -21,6 +21,12 @@ defmodule UserIdSubscribedtoSubscribers do
         {:reply, list, state}
     end
 
+    #get subscribers
+    def handle_call({:get, :subscribers, userId}, _from, state) do
+        list = :ets.lookup(:uss_table, userId) |> Enum.at(0) |> elem(2)     
+        {:reply, list, state}
+    end
+
     # #get all users
     # def handle_call({:get, :all_users}, _from, state) do
     #     list = :ets.lookup(:uss_table, userId) |> Enum.at(0) |> elem(1)     

@@ -52,6 +52,11 @@ defmodule Engine do
         {:reply, tweets, state} 
     end
 
+    def handle_call({:get_all_subscribers, userId}, _from, state) do
+        subscribers_list = GenServer.call(:uss, {:get, :subscribers, userId})
+        {:reply, subscribers_list, state}    
+    end
+
     #hashtags-tested
     def handle_call({:hashtag, hashtag}, _from, state) do
         tweetIds = GenServer.call(:ht, {:get, hashtag})
@@ -77,6 +82,7 @@ defmodule Engine do
     end
 
     #tweet-tested
+    #TODO: remove timestamp field as tweetid is monotonic?
     def handle_cast({:tweet, userId, tweet}, state) do
         curr_time = System.monotonic_time(:microsecond)
         hashtags = get_hashtags(tweet)

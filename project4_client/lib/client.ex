@@ -1,7 +1,7 @@
 defmodule Client do
     use GenServer
     #state: %{:hashtags => hashtags,:mentions => mentions,:num_users => num_users, :factor => factor, :engine_pid => engine_pid,
-    #        :rank => rank, :userid => userid}
+    #        :rank => rank, :userid => userid, :subscribers_size => length subscribers}
 
     def init(state) do
         {:ok, state}
@@ -40,6 +40,19 @@ defmodule Client do
         |> Enum.take_random(num_subscribed_to)
         |> Enum.each(fn(subscribeToId) -> GenServer.cast(engine_pid, {:subscribe, userid, subscribeToId}) end)
         {:reply, :ok, state }
+    end
+
+    def handle_call(:get_subscribers_size, _from, state) do
+        engine_pid = Map.get(state, :engine_pid)
+        userid = Map.get(state, :userid)
+        subscribers = GenServer.call(engine_pid, {:get_all_subscribers, userid})
+        {:reply, :ok, Map.put(state, :subscribers_size, length subscribers)}
+    end
+
+
+    def handle_cast({:tweet, tweets, idx}, state) do
+        
+        {:noreply, state} 
     end
 
 end

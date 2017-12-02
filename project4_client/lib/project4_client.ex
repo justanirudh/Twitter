@@ -8,8 +8,10 @@ defmodule TwitterClient do
     num_users = 10 #TODO: change to 500k
     factor = 1
     #TODO: remove hashtag/mention benchmarking
+    #prepare hashtags, mentions, tweets
     hashtags = Utils.get_hashtags(1, 1000)
     mentions = Utils.get_mentions(1001, 2000)
+    tweets = Utils.get_tweets(2001, 10000, hashtags, mentions)
 
     #epmd -daemon
     {:ok, _} = Node.start(String.to_atom("client@127.0.0.1")) 
@@ -31,6 +33,12 @@ defmodule TwitterClient do
     
     #make clients subscribe by zipf (power law)
     Enum.each(client_pids, fn(pid) -> GenServer.call(pid, :subscribe) end )
+
+    #populate subscribers size for each client to simulate zipf distribution for tweets
+    Enum.each(client_pids, fn(pid) -> GenServer.call(pid, :get_subscribers_size) end )
+
+    #make clients tweet
+    0..num_users-1 |> Enum.each(fn(idx) -> GenServer.cast(Enum.at(client_pids, idx), {:tweet, tweets, idx}) end )
 
 
     #epmd -daemon

@@ -21,5 +21,10 @@ defmodule Utils do
         #TODO: implement this
         []
     end
+
+    def get_tweets(left, right, hashtags, mentions) do
+        #TODO: implement this
+        []
+    end
     
 end
