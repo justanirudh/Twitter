@@ -12,3 +12,5 @@ APIs supported:
 * tweet
 * subscribe
 * retweet
+
+zipf -> paritioning universe into 5 equal parts and assigning subscribers/tweets in that ratio

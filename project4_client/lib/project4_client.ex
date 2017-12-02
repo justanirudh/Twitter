@@ -17,13 +17,15 @@ defmodule TwitterClient do
     :global.sync #sync global registry to let slave know of master being named :master
     engine_pid = :global.whereis_name(:engine)
 
-    client_pids = 1..num_users |> Enum.map(fn(rank) -> GenServer.start_link(Client, {rank, hashtags, mentions, num_users, factor, engine_pid} ) |> elem(1)  end)
+    state = %{:hashtags => hashtags,:mentions => mentions,:num_users => num_users, :factor => factor, :engine_pid => engine_pid}
+
+    client_pids = 1..num_users |> Enum.map(fn(rank) -> GenServer.start_link(Client, Map.put(state, :rank, rank) ) |> elem(1)  end)
 
     #register all clients
-    Enum.each(client_pids, fn(pid) -> GenServer.call(pid, :register)  end )
+    Enum.each(client_pids, fn(pid) -> GenServer.call(pid, :register) end )
     
     #make clients subscribe by zipf (power law)
-    # Enum.each(client_pids, GenServer.cast(Client, {:subscribe}))
+    # Enum.each(client_pids, fn(pid) -> GenServer.call(pid, :subscribe) end )
 
 
     #epmd -daemon
