@@ -10,9 +10,7 @@ defmodule UserIdSubscribedtoSubscribers do
 
     #insert
     def handle_call({:insert, userId}, _from, state) do
-        IO.inspect "inserting user #{userId}"
         :ets.insert(:uss_table, {userId, [], []})
-        IO.inspect :ets.lookup(:uss_table, userId)
         {:reply, :ok, state}
     end
 

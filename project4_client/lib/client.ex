@@ -1,14 +1,14 @@
 defmodule Client do
     use GenServer
-    #state: %{:hashtags => hashtags,:mentions => mentions,:num_users => num_users, :factor => factor, :engine_pid => engine_pid,
+    #state: %{:hashtags => hashtags,:mentions => mentions,:num_users => num_users, :zipf_factor => zipf_factor, :engine_pid => engine_pid,
     #        :rank => rank, :userid => userid, :subscribers_size => length subscribers}
 
 
     def tweet(tweets, tweets_len, idx, wait_time, engine_pid, userid) do
         # tweet_content = Enum.at(tweets, idx)
         tweet_content = "test-tweet"
-        :ok = GenServer.call(engine_pid, {:tweet, userid, tweet_content})
-        :timer.sleep (wait_time/100000 |> round)  # wait_time is in milliseconds
+        :ok = GenServer.call(engine_pid, {:tweet, userid, tweet_content}, :infinity)
+        :timer.sleep (wait_time/1000 |> round)  # wait_time is in milliseconds /100000
         tweet(tweets, tweets_len, rem(idx + 1, tweets_len), wait_time, engine_pid, userid)
     end
 
@@ -67,12 +67,12 @@ defmodule Client do
         rank = Map.get(state, :rank)
         num_users = Map.get(state, :num_users)
         userid = Map.get(state, :userid)
-        factor = Map.get(state, :factor)
+        zipf_factor = Map.get(state, :zipf_factor)
 
         #wait_time b/w tweets
         wait_time = cond do
-            rank >= 0 && rank < (0.2 * num_users |> round) -> (factor * 0.2) |> round
-            true -> (factor * 0.8) |> round
+            rank >= 0 && rank < (0.2 * num_users |> round) -> (zipf_factor * 0.2) |> round
+            true -> (zipf_factor * 0.8) |> round
         end
 
         # tweets_len = length tweets

@@ -21,6 +21,7 @@ defmodule TwitterEngine do
     elem(GenServer.start_link(TweetIdTweet, []), 1) |> Process.register(:tt)
 
     #engine
+    #epmd -daemon
     state = %{:curr_user_id => 0, :curr_tweet_id => 0}
     :global.register_name(:engine, GenServer.start_link(Engine, state) |> elem(1)) 
 

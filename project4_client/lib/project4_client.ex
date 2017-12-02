@@ -19,8 +19,9 @@ defmodule TwitterClient do
 
   def main(args) do
 
-    num_users = 10#TODO: change to 500k
-    factor = 100
+    num_users = 100000#TODO: change to 500k
+    zipf_factor = 100
+    print_every_factor = 5
     
     #prepare hashtags, mentions, tweets
     hashtags = Utils.get_hashtags(1, 1000)
@@ -36,13 +37,13 @@ defmodule TwitterClient do
 
     #register client-master
     client_master_pid = self()
-    :ok = GenServer.call(engine_pid, {:register_client_master, client_master_pid})
+    :ok = GenServer.call(engine_pid, {:register_client_master, client_master_pid, num_users * print_every_factor})
 
     #start users
     state = %{:hashtags => hashtags,
     :mentions => mentions,
     :num_users => num_users, 
-    :factor => factor, 
+    :zipf_factor => zipf_factor, 
     :engine_pid => engine_pid}
 
     client_pids = 0..num_users-1 |> Enum.map(fn(rank) -> GenServer.start_link(Client, Map.put(state, :rank, rank) ) |> elem(1)  end)
@@ -68,6 +69,11 @@ defmodule TwitterClient do
     print_tweet_rate()
 
     IO.inspect "all clients running"
+
+
+    #sandbox
+    # IO.inspect GenServer.call(engine_pid, {:subscribe, :'0', :'1'})
+    # IO.inspect GenServer.call(engine_pid, {:feed, :'0'})
 
   end
 end

@@ -16,8 +16,8 @@ defmodule UserIdTweetIds do
             :ets.delete(:ut_table, userId)
             :ets.insert(:ut_table, {userId, [curr_tweet_id | list]})
         end
-        IO.inspect "userid-tweetid table entry:" 
-        IO.inspect :ets.lookup(:ut_table, userId)
+        # IO.inspect "userid-tweetid table entry:" 
+        # IO.inspect :ets.lookup(:ut_table, userId)
         {:reply, :ok, state}
     end
 

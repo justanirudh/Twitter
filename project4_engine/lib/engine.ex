@@ -1,8 +1,8 @@
 defmodule Engine do
     use GenServer
     @feed_lim 20
-    @print_every 500
-    #state:%{:curr_user_id => curr_user_id, :curr_tweet_id => curr_tweet_id, :client_master_pid => client_master_pid}
+    #state:%{:curr_user_id => curr_user_id, :curr_tweet_id => curr_tweet_id, :client_master_pid => client_master_pid,
+    # :print_every => print_every}
 
     #TODO: spawn every task to a new 'Task' to not make engine the bottleneck?: for tweet, hashtag, mention and feed
     #TODO remove inspects
@@ -34,9 +34,10 @@ defmodule Engine do
     end
 
     #register client_master
-    def handle_call({:register_client_master, client_master_pid}, _from, state) do
+    def handle_call({:register_client_master, client_master_pid, print_every}, _from, state) do
         IO.inspect "client master registered"
-        {:reply, :ok, Map.put(state, :client_master_pid, client_master_pid)}
+        state = Map.put(state, :client_master_pid, client_master_pid)
+        {:reply, :ok, Map.put(state, :print_every, print_every)}
     end
 
     #register - tested
@@ -104,24 +105,26 @@ defmodule Engine do
         hashtags = get_hashtags(tweet)
         mentions = get_mentions(tweet)
         curr_tweet_id_int = Map.get(state, :curr_tweet_id)
-        if rem(curr_tweet_id_int, @print_every) == 0 do
+        print_every = Map.get(state, :print_every)
+        if curr_tweet_id_int != 0 && rem(curr_tweet_id_int, print_every) == 0 do
             IO.inspect state
             client_master_pid = Map.get(state, :client_master_pid)
             IO.inspect client_master_pid
-            send client_master_pid, {:print, @print_every}    
+            send client_master_pid, {:print, print_every} 
+            IO.inspect "sent stats to user-master"   
         end
         #add to userid-tweetids table
         curr_tweet_id = curr_tweet_id_int |> Integer.to_string() |> String.to_atom()
-        :ok = GenServer.call(:ut, {:insert_or_update, userId, curr_tweet_id})
+        :ok = GenServer.call(:ut, {:insert_or_update, userId, curr_tweet_id}, :infinity)
         #add to tweetid-tweet-ts table
-        :ok = GenServer.call(:tt, {:insert, curr_tweet_id, tweet, curr_time})
+        :ok = GenServer.call(:tt, {:insert, curr_tweet_id, tweet, curr_time}, :infinity)
         #add to hashtag-tweetid table
         if(hashtags != []) do
-            :ok = GenServer.call(:ht, {:insert_or_update, hashtags, curr_tweet_id})    
+            :ok = GenServer.call(:ht, {:insert_or_update, hashtags, curr_tweet_id}, :infinity)    
         end     
         #add to mention-tweedtid table
         if(mentions != []) do
-            :ok = GenServer.call(:mt, {:insert_or_update, mentions, curr_tweet_id})    
+            :ok = GenServer.call(:mt, {:insert_or_update, mentions, curr_tweet_id}, :infinity)    
         end
 
         {:reply, :ok, Map.put(state, :curr_tweet_id, curr_tweet_id_int + 1)} 
