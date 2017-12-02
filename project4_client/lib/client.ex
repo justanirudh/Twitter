@@ -38,7 +38,7 @@ defmodule Client do
         |> Enum.map(fn(id_int) -> id_int |> Integer.to_string() |> String.to_atom() end ) #TODO: remove this after removing the hack 
         |> List.delete(userid) 
         |> Enum.take_random(num_subscribed_to)
-        |> Enum.each(fn(subscribeToId) -> GenServer.cast(engine_pid, {:subscribe, userid, subscribeToId}) end)
+        |> Enum.each(fn(subscribeToId) -> GenServer.call(engine_pid, {:subscribe, userid, subscribeToId}) end)
         {:reply, :ok, state }
     end
 
@@ -46,6 +46,7 @@ defmodule Client do
         engine_pid = Map.get(state, :engine_pid)
         userid = Map.get(state, :userid)
         subscribers = GenServer.call(engine_pid, {:get_all_subscribers, userid})
+        IO.inspect length subscribers
         {:reply, :ok, Map.put(state, :subscribers_size, length subscribers)}
     end
 

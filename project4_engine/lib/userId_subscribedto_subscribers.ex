@@ -3,6 +3,7 @@ defmodule UserIdSubscribedtoSubscribers do
     #schema: userid string, subscribed_to_id [], subscribers_ids []
 
     def init(state) do
+        #{:write_concurrency,true}, {:read_concurrency,true}
         :ets.new(:uss_table, [:set, :public, :named_table])
         {:ok, state}
     end
@@ -34,7 +35,7 @@ defmodule UserIdSubscribedtoSubscribers do
     # end
 
     #update
-    def handle_cast({:update, userId, subscribeToId}, state) do
+    def handle_call({:update, userId, subscribeToId}, _from, state) do
         if(:ets.lookup(:uss_table, userId) == [] || 
         :ets.lookup(:uss_table, subscribeToId) == [] ||
         Enum.member?(:ets.lookup(:uss_table, userId) |> Enum.at(0) |> elem(1), subscribeToId) == true) do
@@ -66,7 +67,7 @@ defmodule UserIdSubscribedtoSubscribers do
         IO.inspect :ets.lookup(:uss_table, userId)
         IO.inspect :ets.lookup(:uss_table, subscribeToId)
 
-        {:noreply, state}
+        {:reply, :ok,  state}
     end
 
     def handle_info(_msg, state) do #catch unexpected messages

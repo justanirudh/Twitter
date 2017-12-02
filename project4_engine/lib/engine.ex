@@ -52,6 +52,7 @@ defmodule Engine do
         {:reply, tweets, state} 
     end
 
+    #get all subscribers    
     def handle_call({:get_all_subscribers, userId}, _from, state) do
         subscribers_list = GenServer.call(:uss, {:get, :subscribers, userId})
         {:reply, subscribers_list, state}    
@@ -81,6 +82,14 @@ defmodule Engine do
         {:reply, 0..(elem(state, 0) - 1), state}    
     end
 
+    #subscribe - tested
+    #TODO: change this to call / parallelize table and check again
+    def handle_call({:subscribe, userId, subscribeToId}, _from, state) do
+        IO.inspect "subscribing #{userId} to #{subscribeToId}"
+        res = GenServer.call(:uss, {:update, userId, subscribeToId})
+        {:reply, res, state} 
+    end
+
     #tweet-tested
     #TODO: remove timestamp field as tweetid is monotonic?
     def handle_cast({:tweet, userId, tweet}, state) do
@@ -102,13 +111,6 @@ defmodule Engine do
             GenServer.cast(:mt, {:insert_or_update, mentions, curr_tweet_id})    
         end
         {:noreply, {elem(state, 0), curr_tweet_id_int + 1}} 
-    end
-
-    #subscribe - tested
-    def handle_cast({:subscribe, userId, subscribeToId}, state) do
-        IO.inspect "subscribing #{userId} to #{subscribeToId}"
-        GenServer.cast(:uss, {:update, userId, subscribeToId})
-        {:noreply, state} 
     end
 
     #retweet

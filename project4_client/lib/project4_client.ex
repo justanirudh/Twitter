@@ -5,7 +5,7 @@ defmodule TwitterClient do
 
   def main(args) do
 
-    num_users = 10 #TODO: change to 500k
+    num_users = 100#TODO: change to 500k
     factor = 1
     #TODO: remove hashtag/mention benchmarking
     #prepare hashtags, mentions, tweets
@@ -30,15 +30,19 @@ defmodule TwitterClient do
 
     #register all clients
     Enum.each(client_pids, fn(pid) -> GenServer.call(pid, :register) end )
+
+    IO.inspect "Registered all users"
     
     #make clients subscribe by zipf (power law)
     Enum.each(client_pids, fn(pid) -> GenServer.call(pid, :subscribe) end )
+
+    IO.inspect "Created zipf distribution of subscription model"
 
     #populate subscribers size for each client to simulate zipf distribution for tweets
     Enum.each(client_pids, fn(pid) -> GenServer.call(pid, :get_subscribers_size) end )
 
     #make clients tweet
-    0..num_users-1 |> Enum.each(fn(idx) -> GenServer.cast(Enum.at(client_pids, idx), {:tweet, tweets, idx}) end )
+    # 0..num_users-1 |> Enum.each(fn(idx) -> GenServer.cast(Enum.at(client_pids, idx), {:tweet, tweets, idx}) end )
 
 
     #epmd -daemon
