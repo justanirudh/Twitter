@@ -7,7 +7,7 @@ defmodule Client do
     def tweet(tweets, tweets_len, idx, wait_time, engine_pid, userid) do
         tweet_content = Enum.at(tweets, idx)
         :ok = GenServer.call(engine_pid, {:tweet, userid, tweet_content}, :infinity)
-        # IO.inspect Integer.to_string(userid) <> " tweeted " <> tweet_content
+        IO.inspect Integer.to_string(userid) <> " tweeted " <> tweet_content
         :timer.sleep (wait_time |> round)  # wait_time is in milliseconds
         tweet(tweets, tweets_len, rem(idx + 1, tweets_len), wait_time, engine_pid, userid)
     end

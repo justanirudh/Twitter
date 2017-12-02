@@ -2,7 +2,15 @@ defmodule HashtagTweetIds do
     use GenServer
     #schema: hashtag string, tweetids [ints]
 
-    #TODO: make write conc and read conc true (http://erlang.org/doc/man/ets.html#new-2)
+    defp get_keys(key, list) do
+        if(key == :"$end_of_table") do
+            list    
+        else
+            next = :ets.next(:ht_table, key)
+            get_keys(next, [key | list])
+        end    
+    end
+
     def init(state) do
         :ets.new(:ht_table, [:set, :public, :named_table])
         {:ok, state}
@@ -26,9 +34,16 @@ defmodule HashtagTweetIds do
         {:reply, :ok, state}
     end
 
-    #get
-    def handle_call({:get, hashtag}, _from, state) do
+    #get hashtag
+    def handle_call({:get, :hashtag, hashtag}, _from, state) do
         list = :ets.lookup(:ht_table, hashtag) |> Enum.at(0) |> elem(1)     
+        {:reply, list, state}
+    end
+
+    #get keys
+    def handle_call({:get, :keys}, _from, state) do
+        first = :ets.first(:ht_table)
+        list = get_keys(first, [])
         {:reply, list, state}
     end
 

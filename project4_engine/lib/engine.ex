@@ -69,19 +69,31 @@ defmodule Engine do
     # end
 
     #hashtags-tested
-    def handle_call({:hashtag, hashtag}, _from, state) do
-        tweetIds = GenServer.call(:ht, {:get, hashtag})
+    def handle_call({:hashtag, :hashtag, hashtag}, _from, state) do
+        tweetIds = GenServer.call(:ht, {:get, :hashtag, hashtag})
         #list of tweets
         tweets = get_latest_tweets(tweetIds) 
         {:reply, tweets, state}    
     end
 
+    #hashtag-getkeys
+    def handle_call({:hashtag, :getkeys}, _from, state) do
+        list = GenServer.call(:ht, {:get, :keys})
+        {:reply, list, state}    
+    end
+
     #mentions-tested
-    def handle_call({:mention, mention}, _from, state) do
-        tweetIds = GenServer.call(:mt, {:get, mention})
+    def handle_call({:mention, :mention,mention}, _from, state) do
+        tweetIds = GenServer.call(:mt, {:get, :mention, mention})
         #list of tweets
         tweets = get_latest_tweets(tweetIds) 
         {:reply, tweets, state}    
+    end
+
+    #mention-getkeys
+    def handle_call({:mention, :getkeys}, _from, state) do
+        list = GenServer.call(:mt, {:get, :keys})
+        {:reply, list, state}    
     end
 
     #subscribe - tested
@@ -94,7 +106,6 @@ defmodule Engine do
 
     #tweet-tested
     #TODO: remove timestamp field as tweetid is monotonic?
-    #TODO: change to call so as to handle later CLI requests for mentions/hashtags
     def handle_call({:tweet, userId, tweet}, _from,state) do
         curr_time = System.monotonic_time(:microsecond)
         hashtags = get_hashtags(tweet)

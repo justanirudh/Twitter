@@ -17,7 +17,48 @@ defmodule TwitterClient do
       print_tweet_rate()
   end
 
+# arguments
+# ./project4_client simulate see_tweets NUM_CLIENTS
+# ./project4_client simulate see_tweet_rate NUM_CLIENTS
+# ./project4_client subscribe_to USERID_1 USERID_1
+# ./project4_client sample_hashtags
+# ./project4_client tweets_with_hashtag HASHTAG
+# ./project4_client sample_mentions
+# ./project4_client tweets_with_mention MENTION
+# ./project4_client feed USERID
+
   def main(args) do
+
+    # connect to engine
+    # epmd -daemon
+    {:ok, _} = Node.start(String.to_atom("client@127.0.0.1")) 
+    Application.get_env(:p4, :cookie) |> Node.set_cookie 
+    _ = Node.connect(String.to_atom("engine@127.0.0.1")) #connect to master
+    :global.sync #sync global registry to let slave know of master being named :master
+    engine_pid = :global.whereis_name(:engine)
+
+    action = Enum.at(args, 0)
+    result = case action do
+      "simulate" -> nil #TODO
+      "subscribe_to" -> 
+        userid = Enum.at(args, 1) |> String.to_integer
+        subscribeToId = Enum.at(args, 2) |> String.to_integer
+        Actions.subscribe_to(userid, subscribeToId, engine_pid)
+      "sample_hashtags" -> Actions.get_sample_hashtags(engine_pid)
+      "tweets_with_hashtag" -> 
+        hashtag = Enum.at(args, 1)
+        Actions.get_tweets_with_hashtag(hashtag, engine_pid)
+      "sample_mentions" ->Actions.get_sample_mentions(engine_pid)
+      "tweets_with_mention" ->
+        mention = Enum.at(args, 1)
+        Actions.get_tweets_with_mention(mention, engine_pid)
+      "feed" -> 
+        userid = Enum.at(args, 1) |> String.to_integer
+        Actions.get_feed(userid, engine_pid)
+      _ -> raise "Incorrect parameter"       
+    end
+
+    IO.inspect result
 
     num_users = 1000 #TODO: change to 500k
     zipf_factor = 100/1000 #(factor / fraction of a millisecond wait time) 
@@ -25,27 +66,15 @@ defmodule TwitterClient do
     hashtags_size = 1000
     mentions_size = 1000
     tweets_size = 8000
-    
-    #prepare hashtags, mentions, tweets
-    hashtags = Utils.get_hashtags(1, hashtags_size, [])
-    mentions = Utils.get_mentions(hashtags_size + 1, hashtags_size + mentions_size, [])
-    # tweets = Utils.get_tweets(hashtags_size + mentions_size + 1,hashtags_size + mentions_size + tweets_size, hashtags, hashtags_size,mentions, mentions_size,[], true, false, 0, 0)
-
-    tweets = Utils.get_tweets(1,100,hashtags, hashtags_size,mentions, mentions_size,[], true, false, 0, 0)
-    IO.inspect hashtags
-    IO.inspect mentions
-    IO.inspect tweets
-
-    # #epmd -daemon
-    {:ok, _} = Node.start(String.to_atom("client@127.0.0.1")) 
-    Application.get_env(:p4, :cookie) |> Node.set_cookie 
-    _ = Node.connect(String.to_atom("engine@127.0.0.1")) #connect to master
-    :global.sync #sync global registry to let slave know of master being named :master
-    engine_pid = :global.whereis_name(:engine)
 
     #register client-master
     client_master_pid = self()
     :ok = GenServer.call(engine_pid, {:register_client_master, client_master_pid, num_users * print_every_factor})
+    
+    #prepare hashtags, mentions, tweets
+    hashtags = Utils.get_hashtags(1, hashtags_size, [])
+    mentions = Utils.get_mentions(hashtags_size + 1, hashtags_size + mentions_size, [])
+    tweets = Utils.get_tweets(hashtags_size + mentions_size + 1,hashtags_size + mentions_size + tweets_size, hashtags, hashtags_size,mentions, mentions_size,[], true, false, 0, 0)
 
     #start users
     state = %{:hashtags => hashtags,

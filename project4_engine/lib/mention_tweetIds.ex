@@ -2,6 +2,15 @@ defmodule MentionTweetIds do
     use GenServer
     #schema: mention string, tweetids [ints]
 
+    defp get_keys(key, list) do
+        if(key == :"$end_of_table") do
+            list    
+        else
+            next = :ets.next(:mt_table, key)
+            get_keys(next, [key | list])
+        end    
+    end
+
     def init(state) do
         :ets.new(:mt_table, [:set, :public, :named_table])
         {:ok, state}
@@ -26,8 +35,15 @@ defmodule MentionTweetIds do
     end
 
     #get
-    def handle_call({:get, mention}, _from, state) do
+    def handle_call({:get, :mention, mention}, _from, state) do
         list = :ets.lookup(:mt_table, mention) |> Enum.at(0) |> elem(1)     
+        {:reply, list, state}
+    end
+
+    #get keys
+    def handle_call({:get, :keys}, _from, state) do
+        first = :ets.first(:mt_table)
+        list = get_keys(first, [])
         {:reply, list, state}
     end
 
