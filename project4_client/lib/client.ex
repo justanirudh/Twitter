@@ -5,10 +5,10 @@ defmodule Client do
 
 
     def tweet(tweets, tweets_len, idx, wait_time, engine_pid, userid) do
-        # tweet_content = Enum.at(tweets, idx)
-        tweet_content = "test-tweet"
+        tweet_content = Enum.at(tweets, idx)
         :ok = GenServer.call(engine_pid, {:tweet, userid, tweet_content}, :infinity)
-        :timer.sleep (wait_time/1000 |> round)  # wait_time is in milliseconds /100000
+        # IO.inspect Integer.to_string(userid) <> " tweeted " <> tweet_content
+        :timer.sleep (wait_time |> round)  # wait_time is in milliseconds
         tweet(tweets, tweets_len, rem(idx + 1, tweets_len), wait_time, engine_pid, userid)
     end
 
@@ -74,8 +74,7 @@ defmodule Client do
             true -> (zipf_factor * 0.8) |> round
         end
 
-        # tweets_len = length tweets
-        tweets_len = 100
+        tweets_len = length tweets
         Task.start(Client, :tweet, [tweets, tweets_len, rem(idx, tweets_len), wait_time, engine_pid, userid])     
         
         {:noreply, state} 

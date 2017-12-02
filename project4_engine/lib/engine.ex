@@ -4,10 +4,6 @@ defmodule Engine do
     #state:%{:curr_user_id => curr_user_id, :curr_tweet_id => curr_tweet_id, :client_master_pid => client_master_pid,
     # :print_every => print_every}
 
-    #TODO: spawn every task to a new 'Task' to not make engine the bottleneck?: for tweet, hashtag, mention and feed
-    #TODO remove inspects
-    #TODO global counters for tweet, hashtag, mention and feed and calculate rates per sec (in real time)
-
     defp get_hashtags(tweet) do
         (String.split tweet) |> Enum.filter(fn(str) -> String.starts_with? str, "#" end)
     end
@@ -35,7 +31,7 @@ defmodule Engine do
 
     #register client_master
     def handle_call({:register_client_master, client_master_pid, print_every}, _from, state) do
-        IO.inspect "client master registered"
+        IO.inspect "client-master registered"
         state = Map.put(state, :client_master_pid, client_master_pid)
         {:reply, :ok, Map.put(state, :print_every, print_every)}
     end
@@ -43,7 +39,7 @@ defmodule Engine do
     #register - tested
     def handle_call(:register, _from, state) do
         curr_user_id = Map.get(state, :curr_user_id)
-        IO.inspect "registering user with id #{curr_user_id}"
+        #IO.inspect "registering user with id #{curr_user_id}"
         :ok = GenServer.call(:uss, {:insert, curr_user_id})
         {:reply, curr_user_id, Map.put(state, :curr_user_id, curr_user_id + 1 )} #reply their userid to client
     end
@@ -109,7 +105,7 @@ defmodule Engine do
             IO.inspect state
             client_master_pid = Map.get(state, :client_master_pid)
             send client_master_pid, {:print, print_every} 
-            IO.inspect "sent stats to user-master"   
+            IO.inspect "sent stats to client-master"   
         end
         #add to userid-tweetids table
         :ok = GenServer.call(:ut, {:insert_or_update, userId, curr_tweet_id}, :infinity)

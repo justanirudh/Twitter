@@ -19,16 +19,24 @@ defmodule TwitterClient do
 
   def main(args) do
 
-    num_users = 100000#TODO: change to 500k
-    zipf_factor = 100/1000 #(factor / fraction of a millisecond) 
+    num_users = 1000 #TODO: change to 500k
+    zipf_factor = 100/1000 #(factor / fraction of a millisecond wait time) 
     print_every_factor = 5
+    hashtags_size = 1000
+    mentions_size = 1000
+    tweets_size = 8000
     
     #prepare hashtags, mentions, tweets
-    hashtags = Utils.get_hashtags(1, 1000)
-    mentions = Utils.get_mentions(1001, 2000)
-    tweets = Utils.get_tweets(2001, 10000, hashtags, mentions)
+    hashtags = Utils.get_hashtags(1, hashtags_size, [])
+    mentions = Utils.get_mentions(hashtags_size + 1, hashtags_size + mentions_size, [])
+    # tweets = Utils.get_tweets(hashtags_size + mentions_size + 1,hashtags_size + mentions_size + tweets_size, hashtags, hashtags_size,mentions, mentions_size,[], true, false, 0, 0)
 
-    #epmd -daemon
+    tweets = Utils.get_tweets(1,100,hashtags, hashtags_size,mentions, mentions_size,[], true, false, 0, 0)
+    IO.inspect hashtags
+    IO.inspect mentions
+    IO.inspect tweets
+
+    # #epmd -daemon
     {:ok, _} = Node.start(String.to_atom("client@127.0.0.1")) 
     Application.get_env(:p4, :cookie) |> Node.set_cookie 
     _ = Node.connect(String.to_atom("engine@127.0.0.1")) #connect to master
