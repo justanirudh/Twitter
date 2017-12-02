@@ -3,11 +3,25 @@ defmodule TwitterClient do
   Documentation for TwitterClient.
   """
 
+  def print_tweet_rate() do
+    prev = System.monotonic_time(:microsecond) #start timer
+    receive do
+      {:print, num_tweets} ->
+        next = System.monotonic_time(:microsecond)
+        time_taken = next - prev
+        IO.inspect "num_tweets: #{num_tweets}"
+        IO.inspect "time taken: #{time_taken}"
+        rate = (num_tweets/time_taken) * 1000000
+        IO.inspect "tweet-rate = #{rate} per second"
+    end
+      print_tweet_rate()
+  end
+
   def main(args) do
 
-    num_users = 100#TODO: change to 500k
-    factor = 1
-    #TODO: remove hashtag/mention benchmarking
+    num_users = 10#TODO: change to 500k
+    factor = 100
+    
     #prepare hashtags, mentions, tweets
     hashtags = Utils.get_hashtags(1, 1000)
     mentions = Utils.get_mentions(1001, 2000)
@@ -20,6 +34,11 @@ defmodule TwitterClient do
     :global.sync #sync global registry to let slave know of master being named :master
     engine_pid = :global.whereis_name(:engine)
 
+    #register client-master
+    client_master_pid = self()
+    :ok = GenServer.call(engine_pid, {:register_client_master, client_master_pid})
+
+    #start users
     state = %{:hashtags => hashtags,
     :mentions => mentions,
     :num_users => num_users, 
@@ -28,68 +47,25 @@ defmodule TwitterClient do
 
     client_pids = 0..num_users-1 |> Enum.map(fn(rank) -> GenServer.start_link(Client, Map.put(state, :rank, rank) ) |> elem(1)  end)
 
-    #register all clients
+    #register all users
     Enum.each(client_pids, fn(pid) -> GenServer.call(pid, :register) end )
 
     IO.inspect "Registered all users"
     
     #make clients subscribe by zipf (power law)
-    Enum.each(client_pids, fn(pid) -> GenServer.call(pid, :subscribe) end )
+    # Enum.each(client_pids, fn(pid) -> GenServer.call(pid, :subscribe) end )
 
-    IO.inspect "Created zipf distribution of subscription model"
+    # IO.inspect "Created zipf distribution of subscription model"
 
     #populate subscribers size for each client to simulate zipf distribution for tweets
-    Enum.each(client_pids, fn(pid) -> GenServer.call(pid, :get_subscribers_size) end )
+    # Enum.each(client_pids, fn(pid) -> GenServer.call(pid, :get_subscribers_size) end )
 
-    #make clients tweet
-    # 0..num_users-1 |> Enum.each(fn(idx) -> GenServer.cast(Enum.at(client_pids, idx), {:tweet, tweets, idx}) end )
+    #make clients tweet by zipf law (80-20)
+    0..num_users-1 |> Enum.each(fn(idx) -> GenServer.cast(Enum.at(client_pids, idx), {:tweet, tweets, idx}) end )
 
+    IO.inspect "All users started tweeting"
 
-    #epmd -daemon
-    # {:ok, _} = Node.start(String.to_atom("client@127.0.0.1")) 
-    # Application.get_env(:p4, :cookie) |> Node.set_cookie 
-    # _ = Node.connect(String.to_atom("engine@127.0.0.1")) #connect to master
-    # :global.sync #sync global registry to let slave know of master being named :master
-    # master_node_pid = :global.whereis_name(:engine)
-    
-    # #register
-    # user_id1 = GenServer.call(master_node_pid, :register)
-    # IO.inspect user_id1
-    
-    # user_id2 = GenServer.call(master_node_pid, :register)
-    # IO.inspect user_id2
-
-    # user_id3 = GenServer.call(master_node_pid, :register)
-    # IO.inspect user_id3
-
-    # #subscribe
-    # GenServer.cast(master_node_pid, {:subscribe, user_id1, user_id2})
-    # GenServer.cast(master_node_pid, {:subscribe, user_id1, user_id3})
-    
-    # t1 = "foo"
-    # t2 = "bar"
-    # t3 = "baz"
-    # t4 = "foo2"
-    # t5 = "bar2"
-    # t6 = "baz2"
-
-    # GenServer.cast(master_node_pid, {:tweet, user_id2,t1})
-    # GenServer.cast(master_node_pid, {:tweet, user_id2,t2})
-    # GenServer.cast(master_node_pid, {:tweet, user_id3,t3})
-    # GenServer.cast(master_node_pid, {:tweet, user_id3,t4})
-    # GenServer.cast(master_node_pid, {:tweet, user_id2,t5})
-    # GenServer.cast(master_node_pid, {:tweet, user_id3,t6})
-
-    # feed = GenServer.call(master_node_pid, {:feed, user_id1})
-    # IO.inspect feed # t6, t3, t5: baz2, baz, bar2
-
-    # #get hashtags
-    # list = GenServer.call(master_node_pid, {:mention, "@hey"})
-    # IO.inspect list #should be last and second last
-
-
-    #subscribe
-    # GenServer.cast(master_node_pid, {:subscribe, :'1', :'0'})
+    print_tweet_rate()
 
     IO.inspect "all clients running"
 

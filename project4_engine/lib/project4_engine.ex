@@ -21,7 +21,8 @@ defmodule TwitterEngine do
     elem(GenServer.start_link(TweetIdTweet, []), 1) |> Process.register(:tt)
 
     #engine
-    :global.register_name(:engine, GenServer.start_link(Engine, {0,0}) |> elem(1)) 
+    state = %{:curr_user_id => 0, :curr_tweet_id => 0}
+    :global.register_name(:engine, GenServer.start_link(Engine, state) |> elem(1)) 
 
     #loop infinitely
     loop()

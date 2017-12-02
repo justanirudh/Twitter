@@ -1,7 +1,8 @@
 defmodule Engine do
     use GenServer
     @feed_lim 20
-    #state: {curr_user_id, curr_tweet_id}
+    @print_every 500
+    #state:%{:curr_user_id => curr_user_id, :curr_tweet_id => curr_tweet_id, :client_master_pid => client_master_pid}
 
     #TODO: spawn every task to a new 'Task' to not make engine the bottleneck?: for tweet, hashtag, mention and feed
     #TODO remove inspects
@@ -32,13 +33,19 @@ defmodule Engine do
         {:ok, state}
     end
 
+    #register client_master
+    def handle_call({:register_client_master, client_master_pid}, _from, state) do
+        IO.inspect "client master registered"
+        {:reply, :ok, Map.put(state, :client_master_pid, client_master_pid)}
+    end
+
     #register - tested
     def handle_call(:register, _from, state) do
-        curr_user_id_int = elem(state, 0)
+        curr_user_id_int = Map.get(state, :curr_user_id)
         curr_user_id = curr_user_id_int |> Integer.to_string() |> String.to_atom()
         IO.inspect "registering user with id #{curr_user_id}"
         :ok = GenServer.call(:uss, {:insert, curr_user_id})
-        {:reply, curr_user_id, {curr_user_id_int + 1, elem(state, 1) } } #reply their userid to client
+        {:reply, curr_user_id, Map.put(state, :curr_user_id, curr_user_id_int + 1 )} #reply their userid to client
     end
 
     #feed-tested
@@ -53,10 +60,17 @@ defmodule Engine do
     end
 
     #get all subscribers    
-    def handle_call({:get_all_subscribers, userId}, _from, state) do
-        subscribers_list = GenServer.call(:uss, {:get, :subscribers, userId})
-        {:reply, subscribers_list, state}    
-    end
+    # def handle_call({:get_all_subscribers, userId}, _from, state) do
+    #     subscribers_list = GenServer.call(:uss, {:get, :subscribers, userId})
+    #     {:reply, subscribers_list, state}    
+    # end
+
+    #gets all users; for client to select whom to subscribe to: 
+    #TODO: this is hacky. change it to database query
+    # def handle_call(:get_all_users, _from, state) do
+    #     # all_user_ids = GenServer.call(:uss, {:get, :all_users})
+    #     {:reply, 0..(Map.get(state, :curr_user_id) - 1), state}    
+    # end
 
     #hashtags-tested
     def handle_call({:hashtag, hashtag}, _from, state) do
@@ -74,16 +88,8 @@ defmodule Engine do
         {:reply, tweets, state}    
     end
 
-    #gets all users; for client to select whom to subscribe to: 
-    #TODO: test this
-    #TODO: this is hacky. change it to database query
-    def handle_call(:get_all_users, _from, state) do
-        # all_user_ids = GenServer.call(:uss, {:get, :all_users})
-        {:reply, 0..(elem(state, 0) - 1), state}    
-    end
-
     #subscribe - tested
-    #TODO: change this to call / parallelize table and check again
+    #TODO: remove subsribers column?
     def handle_call({:subscribe, userId, subscribeToId}, _from, state) do
         IO.inspect "subscribing #{userId} to #{subscribeToId}"
         res = GenServer.call(:uss, {:update, userId, subscribeToId})
@@ -92,12 +98,19 @@ defmodule Engine do
 
     #tweet-tested
     #TODO: remove timestamp field as tweetid is monotonic?
+    #TODO: change to call so as to handle later CLI requests for mentions/hashtags
     def handle_cast({:tweet, userId, tweet}, state) do
         curr_time = System.monotonic_time(:microsecond)
         hashtags = get_hashtags(tweet)
         mentions = get_mentions(tweet)
+        curr_tweet_id_int = Map.get(state, :curr_tweet_id)
+        if rem(curr_tweet_id_int, @print_every) == 0 do
+            IO.inspect state
+            client_master_pid = Map.get(state, :client_master_pid)
+            IO.inspect client_master_pid
+            send client_master_pid, {:print, @print_every}    
+        end
         #add to userid-tweetids table
-        curr_tweet_id_int = elem(state, 1)
         curr_tweet_id = curr_tweet_id_int |> Integer.to_string() |> String.to_atom()
         GenServer.cast(:ut, {:insert_or_update, userId, curr_tweet_id})
         #add to tweetid-tweet-ts table
@@ -110,7 +123,8 @@ defmodule Engine do
         if(mentions != []) do
             GenServer.cast(:mt, {:insert_or_update, mentions, curr_tweet_id})    
         end
-        {:noreply, {elem(state, 0), curr_tweet_id_int + 1}} 
+
+        {:noreply, Map.put(state, :curr_tweet_id, curr_tweet_id_int + 1)} 
     end
 
     #retweet
