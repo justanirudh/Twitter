@@ -1,6 +1,6 @@
 defmodule TweetIdTweet do
     use GenServer
-    #schema tweetids atom, tweet string, timestamp number
+    #schema tweetids [ints], tweet string, timestamp number
 
     def init(state) do
         :ets.new(:tt_table, [:set, :public, :named_table])

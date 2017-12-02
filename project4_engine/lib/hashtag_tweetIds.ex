@@ -1,6 +1,6 @@
 defmodule HashtagTweetIds do
     use GenServer
-    #schema: hashtag string, tweetids [:atom]
+    #schema: hashtag string, tweetids [ints]
 
     #TODO: make write conc and read conc true (http://erlang.org/doc/man/ets.html#new-2)
     def init(state) do

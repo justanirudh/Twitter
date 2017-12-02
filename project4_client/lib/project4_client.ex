@@ -20,7 +20,7 @@ defmodule TwitterClient do
   def main(args) do
 
     num_users = 100000#TODO: change to 500k
-    zipf_factor = 100
+    zipf_factor = 100/1000 #(factor / fraction of a millisecond) 
     print_every_factor = 5
     
     #prepare hashtags, mentions, tweets
@@ -61,19 +61,14 @@ defmodule TwitterClient do
     #populate subscribers size for each client to simulate zipf distribution for tweets
     # Enum.each(client_pids, fn(pid) -> GenServer.call(pid, :get_subscribers_size) end )
 
+    IO.inspect "Users started tweeting"
+    
     #make clients tweet by zipf law (80-20)
     0..num_users-1 |> Enum.each(fn(idx) -> GenServer.cast(Enum.at(client_pids, idx), {:tweet, tweets, idx}) end )
 
     IO.inspect "All users started tweeting"
 
     print_tweet_rate()
-
-    IO.inspect "all clients running"
-
-
-    #sandbox
-    # IO.inspect GenServer.call(engine_pid, {:subscribe, :'0', :'1'})
-    # IO.inspect GenServer.call(engine_pid, {:feed, :'0'})
 
   end
 end

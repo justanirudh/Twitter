@@ -42,11 +42,10 @@ defmodule Engine do
 
     #register - tested
     def handle_call(:register, _from, state) do
-        curr_user_id_int = Map.get(state, :curr_user_id)
-        curr_user_id = curr_user_id_int |> Integer.to_string() |> String.to_atom()
+        curr_user_id = Map.get(state, :curr_user_id)
         IO.inspect "registering user with id #{curr_user_id}"
         :ok = GenServer.call(:uss, {:insert, curr_user_id})
-        {:reply, curr_user_id, Map.put(state, :curr_user_id, curr_user_id_int + 1 )} #reply their userid to client
+        {:reply, curr_user_id, Map.put(state, :curr_user_id, curr_user_id + 1 )} #reply their userid to client
     end
 
     #feed-tested
@@ -104,17 +103,15 @@ defmodule Engine do
         curr_time = System.monotonic_time(:microsecond)
         hashtags = get_hashtags(tweet)
         mentions = get_mentions(tweet)
-        curr_tweet_id_int = Map.get(state, :curr_tweet_id)
+        curr_tweet_id = Map.get(state, :curr_tweet_id)
         print_every = Map.get(state, :print_every)
-        if curr_tweet_id_int != 0 && rem(curr_tweet_id_int, print_every) == 0 do
+        if curr_tweet_id != 0 && rem(curr_tweet_id, print_every) == 0 do
             IO.inspect state
             client_master_pid = Map.get(state, :client_master_pid)
-            IO.inspect client_master_pid
             send client_master_pid, {:print, print_every} 
             IO.inspect "sent stats to user-master"   
         end
         #add to userid-tweetids table
-        curr_tweet_id = curr_tweet_id_int |> Integer.to_string() |> String.to_atom()
         :ok = GenServer.call(:ut, {:insert_or_update, userId, curr_tweet_id}, :infinity)
         #add to tweetid-tweet-ts table
         :ok = GenServer.call(:tt, {:insert, curr_tweet_id, tweet, curr_time}, :infinity)
@@ -127,7 +124,7 @@ defmodule Engine do
             :ok = GenServer.call(:mt, {:insert_or_update, mentions, curr_tweet_id}, :infinity)    
         end
 
-        {:reply, :ok, Map.put(state, :curr_tweet_id, curr_tweet_id_int + 1)} 
+        {:reply, :ok, Map.put(state, :curr_tweet_id, curr_tweet_id + 1)} 
     end
 
     #retweet

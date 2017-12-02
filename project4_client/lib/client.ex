@@ -45,7 +45,6 @@ defmodule Client do
     #     end
     #     #get all userids from engine and select 'num_subscribed_to' randomly from them
     #     GenServer.call(engine_pid, :get_all_users)
-    #     |> Enum.map(fn(id_int) -> id_int |> Integer.to_string() |> String.to_atom() end ) #TODO: remove this after removing the hack 
     #     |> List.delete(userid) 
     #     |> Enum.take_random(num_subscribed_to)
     #     |> Enum.each(fn(subscribeToId) -> GenServer.call(engine_pid, {:subscribe, userid, subscribeToId}) end)

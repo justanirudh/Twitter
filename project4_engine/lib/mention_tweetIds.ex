@@ -1,6 +1,6 @@
 defmodule MentionTweetIds do
     use GenServer
-    #schema: mention string, tweetids [:atom]
+    #schema: mention string, tweetids [ints]
 
     def init(state) do
         :ets.new(:mt_table, [:set, :public, :named_table])
