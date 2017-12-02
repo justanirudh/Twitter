@@ -29,24 +29,21 @@ defmodule Utils do
     end
 
     def get_tweets(left, right, hashtags, hl, mentions, ml, list, has_hashtag, has_mention, hashtag_index, mention_index) do
-        #TODO: implement this
         if left == right do
             list
         else
-            tweet_str = change_base(left)
-            IO.inspect tweet_str
-            {tweet_str, hashtag_index} = if has_hashtag do
-                {tweet_str <> " " <> Enum.at(hashtags, hashtag_index),(hashtag_index + 1) |> rem(hl) }
+            tweet_str = change_base(left)    
+            {tweet_str, hashtag_index} = if has_hashtag do             
+                {tweet_str <> " " <> Enum.at(hashtags, hashtag_index), (hashtag_index + 1) |> rem(hl) }
             else
                 {tweet_str, hashtag_index}
             end
-            IO.inspect tweet_str
-            {tweet_str, mention_index} = if has_mention do
+            
+            {tweet_str, mention_index} = if has_mention do                
                 {tweet_str <> " " <> Enum.at(mentions, mention_index), (mention_index + 1) |> rem(ml) }
             else
                 {tweet_str, mention_index}
             end
-            IO.inspect tweet_str
             left = left + 1
             num = :rand.uniform(10)
             has_hashtag = if(rem(num, 2) == 0) do !has_hashtag else has_hashtag end

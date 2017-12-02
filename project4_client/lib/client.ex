@@ -82,7 +82,7 @@ defmodule Client do
         end
 
         tweets_len = length tweets
-        if (see == :see_tweet) do
+        if (see == :see_tweets) do
             Task.start(Client, :tweet_see, [tweets, tweets_len, rem(idx, tweets_len), wait_time, engine_pid, userid])     
         else
             Task.start(Client, :tweet_nosee, [tweets, tweets_len, rem(idx, tweets_len), wait_time, engine_pid, userid])     

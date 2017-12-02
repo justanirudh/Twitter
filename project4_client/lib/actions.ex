@@ -1,5 +1,10 @@
 defmodule Actions do
 
+    defp loop do
+        :timer.sleep(1000000000)
+        loop
+    end
+
     defp print_tweet_rate() do
         prev = System.monotonic_time(:microsecond) #start timer
         receive do
@@ -50,9 +55,9 @@ defmodule Actions do
         :ok = GenServer.call(engine_pid, {:register_client_master, client_master_pid, num_users * print_every_factor})
         
         #prepare hashtags, mentions, tweets
-        hashtags = Utils.get_hashtags(1, hashtags_size, [])
-        mentions = Utils.get_mentions(hashtags_size + 1, hashtags_size + mentions_size, [])
-        tweets = Utils.get_tweets(hashtags_size + mentions_size + 1,hashtags_size + mentions_size + tweets_size, hashtags, hashtags_size,mentions, mentions_size,[], true, false, 0, 0)
+        hashtags = Utils.get_hashtags(0, hashtags_size, [])
+        mentions = Utils.get_mentions(hashtags_size, hashtags_size + mentions_size, [])
+        tweets = Utils.get_tweets(hashtags_size + mentions_size,hashtags_size + mentions_size + tweets_size, hashtags, hashtags_size,mentions, mentions_size,[], true, false, 0, 0)
     
         #start users
         state = %{:hashtags => hashtags,
@@ -85,6 +90,9 @@ defmodule Actions do
     
         if(see == :see_tweet_rate) do
             print_tweet_rate()
+        else
+            #loop infinitely
+            loop()
         end
 
     end
