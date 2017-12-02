@@ -5,7 +5,7 @@ defmodule TwitterClient do
 
   def main(args) do
 
-    num_users = 50 #TODO: change to 500k
+    num_users = 10 #TODO: change to 500k
     factor = 1
     hashtags = Utils.get_hashtags(1, 1000)
     mentions = Utils.get_mentions(1001, 2000)
@@ -17,9 +17,16 @@ defmodule TwitterClient do
     :global.sync #sync global registry to let slave know of master being named :master
     engine_pid = :global.whereis_name(:engine)
 
-    state = %{:hashtags => hashtags,:mentions => mentions,:num_users => num_users, :factor => factor, :engine_pid => engine_pid}
+    state = %{:hashtags => hashtags,
+    :mentions => mentions,
+    :num_users => num_users, 
+    :factor => factor, 
+    :engine_pid => engine_pid}
 
     client_pids = 1..num_users |> Enum.map(fn(rank) -> GenServer.start_link(Client, Map.put(state, :rank, rank) ) |> elem(1)  end)
+
+    #send all neighbour pids to each client
+    Enum.each(client_pids, fn(pid) -> GenServer.call(pid, {:add_user_pids, List.delete(client_pids, pid)}) end )
 
     #register all clients
     Enum.each(client_pids, fn(pid) -> GenServer.call(pid, :register) end )

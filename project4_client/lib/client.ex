@@ -1,7 +1,7 @@
 defmodule Client do
     use GenServer
     #state: %{:hashtags => hashtags,:mentions => mentions,:num_users => num_users, :factor => factor, :engine_pid => engine_pid,
-    #        :rank => rank, :userid => userid}
+    #        :rank => rank, :userid => userid, :user_pids => user_pids}
 
     def init(state) do
         {:ok, state}
@@ -11,8 +11,13 @@ defmodule Client do
     def handle_call(:register, _from, state) do
         engine_pid = Map.get(state, :engine_pid)
         userid = GenServer.call(engine_pid, :register)
-        IO.inspect userid
         {:reply, :ok, Map.put(state, :userid, userid) }
+    end
+
+    #add all users except self
+    def handle_call({:add_user_pids, user_pids}, _from, state) do
+        IO.inspect user_pids
+        {:reply, :ok, Map.put(state, :user_pids, user_pids) }
     end
 
     #subscribe
