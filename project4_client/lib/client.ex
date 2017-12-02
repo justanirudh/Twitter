@@ -4,12 +4,19 @@ defmodule Client do
     #        :rank => rank, :userid => userid, :subscribers_size => length subscribers}
 
 
-    def tweet(tweets, tweets_len, idx, wait_time, engine_pid, userid) do
+    def tweet_see(tweets, tweets_len, idx, wait_time, engine_pid, userid) do
         tweet_content = Enum.at(tweets, idx)
         :ok = GenServer.call(engine_pid, {:tweet, userid, tweet_content}, :infinity)
         IO.inspect Integer.to_string(userid) <> " tweeted " <> tweet_content
         :timer.sleep (wait_time |> round)  # wait_time is in milliseconds
-        tweet(tweets, tweets_len, rem(idx + 1, tweets_len), wait_time, engine_pid, userid)
+        tweet_see(tweets, tweets_len, rem(idx + 1, tweets_len), wait_time, engine_pid, userid)
+    end
+
+    def tweet_nosee(tweets, tweets_len, idx, wait_time, engine_pid, userid) do
+        tweet_content = Enum.at(tweets, idx)
+        :ok = GenServer.call(engine_pid, {:tweet, userid, tweet_content}, :infinity)
+        :timer.sleep (wait_time |> round)  # wait_time is in milliseconds
+        tweet_nosee(tweets, tweets_len, rem(idx + 1, tweets_len), wait_time, engine_pid, userid)
     end
 
     def init(state) do
@@ -61,7 +68,7 @@ defmodule Client do
     # end
 
     #tweet
-    def handle_cast({:tweet, tweets, idx}, state) do
+    def handle_cast({:tweet, tweets, idx,see}, state) do
         engine_pid = Map.get(state, :engine_pid)
         rank = Map.get(state, :rank)
         num_users = Map.get(state, :num_users)
@@ -75,7 +82,12 @@ defmodule Client do
         end
 
         tweets_len = length tweets
-        Task.start(Client, :tweet, [tweets, tweets_len, rem(idx, tweets_len), wait_time, engine_pid, userid])     
+        if (see == :see_tweet) do
+            Task.start(Client, :tweet_see, [tweets, tweets_len, rem(idx, tweets_len), wait_time, engine_pid, userid])     
+        else
+            Task.start(Client, :tweet_nosee, [tweets, tweets_len, rem(idx, tweets_len), wait_time, engine_pid, userid])     
+        end
+        
         
         {:noreply, state} 
     end
