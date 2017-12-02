@@ -68,6 +68,14 @@ defmodule Engine do
         {:reply, tweets, state}    
     end
 
+    #gets all users; for client to select whom to subscribe to: 
+    #TODO: test this
+    #TODO: this is hacky. change it to database query
+    def handle_call(:get_all_users, _from, state) do
+        # all_user_ids = GenServer.call(:uss, {:get, :all_users})
+        {:reply, 0..(elem(state, 0) - 1), state}    
+    end
+
     #tweet-tested
     def handle_cast({:tweet, userId, tweet}, state) do
         curr_time = System.monotonic_time(:microsecond)

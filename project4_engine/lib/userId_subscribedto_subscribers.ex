@@ -15,11 +15,17 @@ defmodule UserIdSubscribedtoSubscribers do
         {:reply, :ok, state}
     end
 
-    #get
+    #get subscribed to
     def handle_call({:get, :subscribed_to, userId}, _from, state) do
         list = :ets.lookup(:uss_table, userId) |> Enum.at(0) |> elem(1)     
         {:reply, list, state}
     end
+
+    # #get all users
+    # def handle_call({:get, :all_users}, _from, state) do
+    #     list = :ets.lookup(:uss_table, userId) |> Enum.at(0) |> elem(1)     
+    #     {:reply, list, state}
+    # end
 
     #update
     def handle_cast({:update, userId, subscribeToId}, state) do
