@@ -5,7 +5,7 @@ defmodule TwitterClient do
 
   def main(args) do
 
-    num_users = 500000 #500k
+    num_users = 50 #TODO: change to 500k
     factor = 1
     hashtags = Utils.get_hashtags(1, 1000)
     mentions = Utils.get_mentions(1001, 2000)
@@ -17,7 +17,13 @@ defmodule TwitterClient do
     :global.sync #sync global registry to let slave know of master being named :master
     engine_pid = :global.whereis_name(:engine)
 
-    1..num_users |> Enum.each(fn(rank) -> GenServer.start_link(Client, {rank, hashtags, mentions, num_users, factor, engine_pid})  end)
+    client_pids = 1..num_users |> Enum.map(fn(rank) -> GenServer.start_link(Client, {rank, hashtags, mentions, num_users, factor, engine_pid} ) |> elem(1)  end)
+
+    #register all clients
+    Enum.each(client_pids, fn(pid) -> GenServer.call(pid, :register)  end )
+    
+    #make clients subscribe by zipf (power law)
+    # Enum.each(client_pids, GenServer.cast(Client, {:subscribe}))
 
 
     #epmd -daemon
