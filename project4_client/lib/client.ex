@@ -1,7 +1,7 @@
 defmodule Client do
     use GenServer
     #state: %{:hashtags => hashtags,:mentions => mentions,:num_users => num_users, :factor => factor, :engine_pid => engine_pid,
-    #        :rank => rank, :userid => userid, :user_pids => user_pids}
+    #        :rank => rank, :userid => userid}
 
     def init(state) do
         {:ok, state}
@@ -14,29 +14,32 @@ defmodule Client do
         {:reply, :ok, Map.put(state, :userid, userid) }
     end
 
-    #add all users except self
-    def handle_call({:add_user_pids, user_pids}, _from, state) do
-        IO.inspect user_pids
-        {:reply, :ok, Map.put(state, :user_pids, user_pids) }
-    end
-
-    #subscribe
-    def handle_call(:subcribe, _from, state) do
+    #subscribe with zipf distribution
+    def handle_call(:subscribe, _from, state) do
         engine_pid = Map.get(state, :engine_pid)
         rank = Map.get(state, :rank)
         num_users = Map.get(state, :num_users)
+        userid = Map.get(state, :userid)
+        #get teirs
+        teir1 = 0.2*num_users |> round
+        teir2 = 0.4*num_users |> round
+        teir3 = 0.6*num_users |> round
+        teir4 = 0.8*num_users |> round
+        #get num_subscribed to
         num_subscribed_to = cond do
-            rank >= 0 && rank < 0.2*num_users -> 0.2*num_users
-            rank >= 0.2*num_users && rank < 0.4*num_users -> 0.4*num_users
-            rank >= 0.4*num_users && rank < 0.6*num_users -> 0.6*num_users
-            rank >= 0.6*num_users && rank < 0.8*num_users -> 0.8*num_users
-            rank >= 0.8*num_users && rank < num_users -> num_users   
+            rank >= 0 && rank < teir1 -> teir1
+            rank >= teir1 && rank < teir2 -> teir2
+            rank >= teir2 && rank < teir3 -> teir3
+            rank >= teir3 && rank < teir4 -> teir4
+            rank >= teir4 && rank < num_users -> num_users   
         end
-        #subscribe to num_subscribed_to number of clients
-
-        userid = GenServer.call(engine_pid, :register)
-        IO.inspect userid
-        {:reply, :ok, Tuple.append(state, userid) }
+        #get all userids from engine and select 'num_subscribed_to' randomly from them
+        GenServer.call(engine_pid, :get_all_users)
+        |> Enum.map(fn(id_int) -> id_int |> Integer.to_string() |> String.to_atom() end ) #TODO: remove this after removing the hack 
+        |> List.delete(userid) 
+        |> Enum.take_random(num_subscribed_to)
+        |> Enum.each(fn(subscribeToId) -> GenServer.cast(engine_pid, {:subscribe, userid, subscribeToId}) end)
+        {:reply, :ok, state }
     end
 
 end

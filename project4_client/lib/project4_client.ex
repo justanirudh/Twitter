@@ -7,6 +7,7 @@ defmodule TwitterClient do
 
     num_users = 10 #TODO: change to 500k
     factor = 1
+    #TODO: remove hashtag/mention benchmarking
     hashtags = Utils.get_hashtags(1, 1000)
     mentions = Utils.get_mentions(1001, 2000)
 
@@ -23,16 +24,13 @@ defmodule TwitterClient do
     :factor => factor, 
     :engine_pid => engine_pid}
 
-    client_pids = 1..num_users |> Enum.map(fn(rank) -> GenServer.start_link(Client, Map.put(state, :rank, rank) ) |> elem(1)  end)
-
-    #send all neighbour pids to each client
-    Enum.each(client_pids, fn(pid) -> GenServer.call(pid, {:add_user_pids, List.delete(client_pids, pid)}) end )
+    client_pids = 0..num_users-1 |> Enum.map(fn(rank) -> GenServer.start_link(Client, Map.put(state, :rank, rank) ) |> elem(1)  end)
 
     #register all clients
     Enum.each(client_pids, fn(pid) -> GenServer.call(pid, :register) end )
     
     #make clients subscribe by zipf (power law)
-    # Enum.each(client_pids, fn(pid) -> GenServer.call(pid, :subscribe) end )
+    Enum.each(client_pids, fn(pid) -> GenServer.call(pid, :subscribe) end )
 
 
     #epmd -daemon
