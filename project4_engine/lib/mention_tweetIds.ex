@@ -8,7 +8,7 @@ defmodule MentionTweetIds do
     end
 
     #insert/update
-    def handle_cast({:insert_or_update, mentions, curr_tweet_id}, state) do
+    def handle_call({:insert_or_update, mentions, curr_tweet_id}, _from,state) do
         Enum.each(mentions, fn(mention) -> 
             if(:ets.lookup(:mt_table, mention) == []) do
                 :ets.insert(:mt_table, {mention, [curr_tweet_id]})
@@ -22,7 +22,7 @@ defmodule MentionTweetIds do
             IO.inspect "mention-tweetid table entry:"  
             IO.inspect :ets.lookup(:mt_table, ment)  
         end)
-        {:noreply, state}
+        {:reply, :ok, state}
     end
 
     #get

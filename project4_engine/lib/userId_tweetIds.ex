@@ -8,7 +8,7 @@ defmodule UserIdTweetIds do
     end
 
     #insert/update
-    def handle_cast({:insert_or_update, userId, curr_tweet_id}, state) do
+    def handle_call({:insert_or_update, userId, curr_tweet_id}, _from,state) do
         if(:ets.lookup(:ut_table, userId) == []) do
             :ets.insert(:ut_table, {userId, [curr_tweet_id]})
         else
@@ -18,7 +18,7 @@ defmodule UserIdTweetIds do
         end
         IO.inspect "userid-tweetid table entry:" 
         IO.inspect :ets.lookup(:ut_table, userId)
-        {:noreply, state}
+        {:reply, :ok, state}
     end
 
     #get

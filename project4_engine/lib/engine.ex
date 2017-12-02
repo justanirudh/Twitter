@@ -99,7 +99,7 @@ defmodule Engine do
     #tweet-tested
     #TODO: remove timestamp field as tweetid is monotonic?
     #TODO: change to call so as to handle later CLI requests for mentions/hashtags
-    def handle_cast({:tweet, userId, tweet}, state) do
+    def handle_call({:tweet, userId, tweet}, _from,state) do
         curr_time = System.monotonic_time(:microsecond)
         hashtags = get_hashtags(tweet)
         mentions = get_mentions(tweet)
@@ -112,27 +112,27 @@ defmodule Engine do
         end
         #add to userid-tweetids table
         curr_tweet_id = curr_tweet_id_int |> Integer.to_string() |> String.to_atom()
-        GenServer.cast(:ut, {:insert_or_update, userId, curr_tweet_id})
+        :ok = GenServer.call(:ut, {:insert_or_update, userId, curr_tweet_id})
         #add to tweetid-tweet-ts table
-        GenServer.cast(:tt, {:insert, curr_tweet_id, tweet, curr_time})
+        :ok = GenServer.call(:tt, {:insert, curr_tweet_id, tweet, curr_time})
         #add to hashtag-tweetid table
         if(hashtags != []) do
-            GenServer.cast(:ht, {:insert_or_update, hashtags, curr_tweet_id})    
+            :ok = GenServer.call(:ht, {:insert_or_update, hashtags, curr_tweet_id})    
         end     
         #add to mention-tweedtid table
         if(mentions != []) do
-            GenServer.cast(:mt, {:insert_or_update, mentions, curr_tweet_id})    
+            :ok = GenServer.call(:mt, {:insert_or_update, mentions, curr_tweet_id})    
         end
 
-        {:noreply, Map.put(state, :curr_tweet_id, curr_tweet_id_int + 1)} 
+        {:reply, :ok, Map.put(state, :curr_tweet_id, curr_tweet_id_int + 1)} 
     end
 
     #retweet
-    def handle_cast({:retweet, userId, tweet}, state) do
+    def handle_call({:retweet, userId, tweet}, _from,state) do
         #TODO: logic to a. get feed, b. select 1 at random, c. retweet that on client side
         #Add extra func. if reqd. for Part-II. else merge with tweet
-        GenServer.cast(:e, {:tweet, userId, tweet})
-        {:noreply, state} 
+        :ok = GenServer.call(:e, {:tweet, userId, tweet})
+        {:reply, :ok, state} 
     end
 
     

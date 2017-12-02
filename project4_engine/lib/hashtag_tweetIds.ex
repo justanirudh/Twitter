@@ -9,7 +9,7 @@ defmodule HashtagTweetIds do
     end
 
     #insert/update
-    def handle_cast({:insert_or_update, hashtags, curr_tweet_id}, state) do
+    def handle_call({:insert_or_update, hashtags, curr_tweet_id}, _from, state) do
         Enum.each(hashtags, fn(hashtag) -> 
             if(:ets.lookup(:ht_table, hashtag) == []) do
                 :ets.insert(:ht_table, {hashtag, [curr_tweet_id]})
@@ -23,7 +23,7 @@ defmodule HashtagTweetIds do
             IO.inspect "hashtag-tweetid table entry:"  
             IO.inspect :ets.lookup(:ht_table, htag)  
         end)
-        {:noreply, state}
+        {:reply, :ok, state}
     end
 
     #get
