@@ -50,15 +50,6 @@ defmodule Client do
         {:reply, :ok, state }
     end
 
-    # #get subscriber size
-    # def handle_call(:get_subscribers_size, _from, state) do
-    #     engine_pid = Map.get(state, :engine_pid)
-    #     userid = Map.get(state, :userid)
-    #     subscribers = GenServer.call(engine_pid, {:get_all_subscribers, userid})
-    #     IO.inspect length subscribers
-    #     {:reply, :ok, Map.put(state, :subscribers_size, length subscribers)}
-    # end
-
     #tweet
     def handle_cast({:tweet, tweets, idx,see}, state) do
         engine_pid = Map.get(state, :engine_pid)

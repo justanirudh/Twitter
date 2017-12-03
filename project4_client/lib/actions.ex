@@ -101,4 +101,9 @@ defmodule Actions do
         end
 
     end
+
+    def retweet(userid, engine_pid) do
+        retweet = get_feed(userid, engine_pid) |> Enum.take_random(1) |> Enum.at(0)
+        GenServer.call(engine_pid, {:tweet, userid, retweet})
+    end
 end
