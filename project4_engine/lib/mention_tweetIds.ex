@@ -36,12 +36,17 @@ defmodule MentionTweetIds do
 
     #get
     def handle_call({:get, :mention, mention}, _from, state) do
-        row = :ets.lookup(:mt_table, mention)
-        list = if row == nil do
+        list = if(mention == nil) do
             []
         else
-            row |> Enum.at(0) |> elem(1)     
-        end    
+            row = :ets.lookup(:mt_table, mention)
+            if row == [] do
+                []
+            else
+                row |> Enum.at(0) |> elem(1)     
+            end    
+        end
+        
         {:reply, list, state}
     end
 

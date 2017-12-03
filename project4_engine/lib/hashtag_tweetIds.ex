@@ -36,12 +36,17 @@ defmodule HashtagTweetIds do
 
     #get hashtag
     def handle_call({:get, :hashtag, hashtag}, _from, state) do
-        row = :ets.lookup(:ht_table, hashtag)
-        list = if row == nil do
+        list = if (hashtag == nil) do
             []
         else
-            row |> Enum.at(0) |> elem(1)     
+            row = :ets.lookup(:ht_table, hashtag)
+            if row == [] do
+                []
+            else
+                row |> Enum.at(0) |> elem(1)     
+            end
         end
+        
         {:reply, list, state}
     end
 

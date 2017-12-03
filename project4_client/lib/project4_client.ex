@@ -8,7 +8,7 @@ defmodule TwitterClient do
 # ./project4_client simulate see_tweet_rate NUM_CLIENTS
 # ./project4_client subscribe_to USERID_1 USERID_2
 # ./project4_client sample_hashtags
-# ./project4_client tweets_with_hashtag HASHTAG
+# ./project4_client tweets_with_hashtag HASHTAG  #(HASHTAG should be WITHOUT the '#' symbol)
 # ./project4_client sample_mentions
 # ./project4_client tweets_with_mention MENTION
 # ./project4_client feed USERID
@@ -42,7 +42,7 @@ defmodule TwitterClient do
       "tweets_with_hashtag" -> 
         hashtag = Enum.at(args, 1)
         IO.inspect hashtag
-        Actions.get_tweets_with_hashtag(hashtag, engine_pid)
+        Actions.get_tweets_with_hashtag("#" <> hashtag, engine_pid)
       "sample_mentions" ->Actions.get_sample_mentions(engine_pid)
       "tweets_with_mention" ->
         mention = Enum.at(args, 1)
