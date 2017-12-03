@@ -45,8 +45,10 @@ The following operations are supported:
 
 7. ./project4_client sample_mentions
     Prints the mentions of all the tweets sent so far.You can pick any of these and use it as an argument in the next command
+
 8. ./project4_client tweets_with_mention MENTION
     Provided a mention, it outputs ALL the tweets sent so far to the engine that have that mention.
+    
 9. ./project4_client retweet USERID
     Provided a userid, retweets as the user. For simulation, it does 3 things:
 	1. Gets the user's feed
