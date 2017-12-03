@@ -47,3 +47,8 @@ The following operations are supported:
     Prints the mentions of all the tweets sent so far.You can pick any of these and use it as an argument in the next command
 8. ./project4_client tweets_with_mention MENTION
     Provided a mention, it outputs ALL the tweets sent so far to the engine that have that mention.
+9. ./project4_client retweet USERID
+    Provided a userid, retweets as the user. For simulation, it does 3 things:
+	1. Gets the user's feed
+	2. Randomly selects 1 tweet from its feed
+	3. (Re)Tweets that tweet 	
