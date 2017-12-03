@@ -55,19 +55,6 @@ defmodule Engine do
         {:reply, tweets, state} 
     end
 
-    #get all subscribers    
-    # def handle_call({:get_all_subscribers, userId}, _from, state) do
-    #     subscribers_list = GenServer.call(:uss, {:get, :subscribers, userId})
-    #     {:reply, subscribers_list, state}    
-    # end
-
-    #gets all users; for client to select whom to subscribe to: 
-    #TODO: this is hacky. change it to database query
-    # def handle_call(:get_all_users, _from, state) do
-    #     # all_user_ids = GenServer.call(:uss, {:get, :all_users})
-    #     {:reply, 0..(Map.get(state, :curr_user_id) - 1), state}    
-    # end
-
     #hashtags-tested
     def handle_call({:hashtag, :hashtag, hashtag}, _from, state) do
         tweetIds = GenServer.call(:ht, {:get, :hashtag, hashtag})

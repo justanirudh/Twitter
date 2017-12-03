@@ -79,15 +79,13 @@ defmodule Actions do
         #register all users
         Enum.each(client_pids, fn(pid) -> GenServer.call(pid, :register) end )
     
-        IO.inspect "Registered all users"
-        
+        IO.inspect "Registered all users\n "
+
         #make clients subscribe by zipf (power law)
+
+        # IO.inspect "Subscribing by zipf law"
         # Enum.each(client_pids, fn(pid) -> GenServer.call(pid, :subscribe) end )
-    
         # IO.inspect "Created zipf distribution of subscription model"
-    
-        #populate subscribers size for each client to simulate zipf distribution for tweets
-        # Enum.each(client_pids, fn(pid) -> GenServer.call(pid, :get_subscribers_size) end )
         
         #make clients tweet by zipf law (80-20)
         Task.start(Actions, :make_em_tweet, [num_users, client_pids, tweets, see])
