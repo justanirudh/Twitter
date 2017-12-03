@@ -14,8 +14,9 @@ Please find below all the commands that are supported by the Engine API and that
 For getting meaningful results, the following order can be used:
 
 1. Do a run of the simulation. You can use either Command-1 or Command-2 based on what you want to see in the output.
-2. After some time kill the client process. Next you can play with the rest of the actions
-3. You can subscribe user(s) to another user(s) using Command-3 and then see each user's feed based on their subscription by using Command-4
+2. After some time kill the client process.(Once you have got say, 1 running average printed out on the console you can hit cancel). Next you can play with the rest of the actions as we have some tables populated in the engine
+3. You can subscribe user(s) to another user(s) using Command-3 and then look at each user's feed based on their subscription by using Command-4
+(Subscriptions in simulation takes time since we are batching ALL subscriptions at once but it is works relatively fast if the number of users are <= 1000. To see this in action, please uncomment lines [86,87,88] in 'actions.ex' in 'project4_client' and run the simulation again. Once this is done, all feeds of all users will be populated and you can have a better look at them by using Command-4)
 4. You can look at some sample hashtags in the database using Command-5 and test if hashtag API works by using Command-6 (Make sure you dont uss the '#' symbol in the argument)
 5. You can look at some sample mentions in the database using Command-7 and test if mention API works by using Command-8
 
