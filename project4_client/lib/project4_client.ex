@@ -11,7 +11,7 @@ defmodule TwitterClient do
 # ./project4_client tweets_with_hashtag HASHTAG  #(HASHTAG should be WITHOUT the '#' symbol)
 # ./project4_client sample_mentions
 # ./project4_client tweets_with_mention MENTION
-# ./project4_client feed USERID
+# ./project4_client feed USERID #TODO: only include this if supported the subscription (30 min.)
 
   def main(args) do
 

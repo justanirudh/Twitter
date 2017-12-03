@@ -50,7 +50,7 @@ defmodule Actions do
 
     def simulate(engine_pid, num_users, see) do
         zipf_factor = 100/1000 #(factor / fraction of a millisecond wait time) 
-        print_every_factor = 5
+        print_every_factor = 3
         hashtags_size = 1000
         mentions_size = 1000
         tweets_size = 8000
@@ -70,9 +70,13 @@ defmodule Actions do
         :num_users => num_users, 
         :zipf_factor => zipf_factor, 
         :engine_pid => engine_pid}
+
+        IO.inspect "Spawning all users"
     
         client_pids = 0..num_users-1 |> Enum.map(fn(rank) -> GenServer.start_link(Client, Map.put(state, :rank, rank) ) |> elem(1)  end)
     
+        IO.inspect "Registering all users"
+
         #register all users
         Enum.each(client_pids, fn(pid) -> GenServer.call(pid, :register) end )
     
@@ -92,7 +96,7 @@ defmodule Actions do
         IO.inspect "Users have started tweeting"
     
         if(see == :see_tweet_rate) do
-            IO.inspect "Waiting for first rate-results to arrive"
+            IO.inspect "Waiting for first tweet-rate-results to arrive"
             print_tweet_rate()
         else
             #loop infinitely
