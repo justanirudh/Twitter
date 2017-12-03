@@ -84,9 +84,8 @@ defmodule Engine do
     end
 
     #subscribe - tested
-    #TODO: remove subsribers column?
     def handle_call({:subscribe, userId, subscribeToId}, _from, state) do
-        IO.inspect "subscribing #{userId} to #{subscribeToId}"
+        # IO.inspect "subscribing #{userId} to #{subscribeToId}"
         res = GenServer.call(:uss, {:update, userId, subscribeToId})
         {:reply, res, state} 
     end
