@@ -5,18 +5,18 @@ defmodule Actions do
         loop
     end
 
-    defp print_tweet_rate() do
-        prev = System.monotonic_time(:microsecond) #start timer
+    defp print_tweet_rate(total_tweets, epoch) do
         receive do
           {:print, num_tweets} ->
             next = System.monotonic_time(:microsecond)
-            time_taken = next - prev
-            IO.inspect "num_tweets: #{num_tweets}"
-            IO.inspect "time taken: #{time_taken}"
-            rate = (num_tweets/time_taken) * 1000000
-            IO.inspect "tweet-rate = #{rate} per second"
+            total_time = next - epoch
+            total_tweets = total_tweets + num_tweets
+            rate = (total_tweets / (total_time)) * 1000000
+            IO.inspect "total_tweets: #{total_tweets}"
+            IO.inspect "running average: #{rate} tweets per second"
         end
-        print_tweet_rate()
+        IO.inspect "Waiting for next batch.."
+        print_tweet_rate(total_tweets, epoch)
     end
 
     def make_em_tweet(num_users, client_pids, tweets, see) do
@@ -96,8 +96,8 @@ defmodule Actions do
         IO.inspect "Users have started tweeting"
     
         if(see == :see_tweet_rate) do
-            IO.inspect "Waiting for first tweet-rate-results to arrive"
-            print_tweet_rate()
+            IO.inspect "Waiting for first tweet-rate-results to arrive.."
+            print_tweet_rate(0, System.monotonic_time(:microsecond))
         else
             #loop infinitely
             loop()
