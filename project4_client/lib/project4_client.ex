@@ -12,6 +12,7 @@ defmodule TwitterClient do
 # ./project4_client sample_mentions
 # ./project4_client tweets_with_mention MENTION
 # ./project4_client feed USERID
+# ./project4_client retweet USERID
 
   def main(args) do
 
@@ -49,6 +50,9 @@ defmodule TwitterClient do
       "feed" -> 
         userid = Enum.at(args, 1) |> String.to_integer
         Actions.get_feed(userid, engine_pid)
+      "retweet" -> 
+        userid = Enum.at(args, 1) |> String.to_integer
+        Actions.retweet(userid, engine_pid)
       _ -> raise "Incorrect parameter"       
     end
 

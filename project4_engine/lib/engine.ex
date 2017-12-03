@@ -118,14 +118,4 @@ defmodule Engine do
 
         {:reply, :ok, Map.put(state, :curr_tweet_id, curr_tweet_id + 1)} 
     end
-
-    #retweet
-    def handle_call({:retweet, userId, tweet}, _from,state) do
-        #TODO: logic to a. get feed, b. select 1 at random, c. retweet that on client side
-        #Add extra func. if reqd. for Part-II. else merge with tweet
-        :ok = GenServer.call(:e, {:tweet, userId, tweet})
-        {:reply, :ok, state} 
-    end
-
-    
 end

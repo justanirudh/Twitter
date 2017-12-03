@@ -13,7 +13,7 @@ defmodule Client do
     end
 
     def tweet_nosee(tweets, tweets_len, idx, wait_time, engine_pid, userid) do
-        tweet_content = Enum.at(tweets, idx)
+        tweet_content = "Tweet" <> Integer.to_string(userid) <>  " " <> Enum.at(tweets, idx)
         :ok = GenServer.call(engine_pid, {:tweet, userid, tweet_content}, :infinity)
         :timer.sleep (wait_time |> round)  # wait_time is in milliseconds
         tweet_nosee(tweets, tweets_len, rem(idx + 1, tweets_len), wait_time, engine_pid, userid)
