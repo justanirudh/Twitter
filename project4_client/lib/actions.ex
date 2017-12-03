@@ -2,7 +2,7 @@ defmodule Actions do
 
     defp loop do
         :timer.sleep(1000000000)
-        loop
+        loop()
     end
 
     defp print_tweet_rate(total_tweets, epoch) do
