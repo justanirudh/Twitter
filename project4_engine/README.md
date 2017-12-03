@@ -1,28 +1,48 @@
 # Twitter
 
-
 #How to run
 
-1. Run the twitter engine
+# First, Run the twitter engine
 * Go to the project4_engine directory
 * run the following commands:
     * mix escript.build
     * ./project4_engine
 
-2. Run the twitter client simulator
+# Then, Run the twitter client simulator
 
+Please find below all the commands that are supported by the Engine API and that can be used from the client-side
+For getting meaningful results, the following order can be used:
 
-#TODO: get it to 1 directory up as this is readme for both engine and client
-#create detailed report ~2hr
+1. Do a run of the simulation. You can use either Command-1 or Command-2 based on what you want to see in the output.
+2. After some time kill the client process. Next you can play with the rest of the actions
+3. You can subscribe user(s) to another user(s) using Command-3 and then see each user's feed based on their subscription by using Command-4
+4. You can look at some sample hashtags in the database using Command-5 and test if hashtag API works by using Command-6 (Make sure you dont uss the '#' symbol in the argument)
+5. You can look at some sample mentions in the database using Command-7 and test if mention API works by using Command-8
 
-Feed-limit = 20
-APIs supported:
-* register
-* feed
-* hashtag
-* mention
-* tweet
-* subscribe
-* retweet
+Below are the commands:
 
-zipf -> paritioning universe into 5 equal parts and assigning subscribers/tweets in that ratio
+#USER COMMANDS
+
+The following operations are supported:
+1. ./project4_client simulate see_tweets NUM_CLIENTS
+    Starts a simulation with the given number of users (limits to this value are included in the report). The 'see_tweets' flag allows the _tweets sent by the various users_ to be printed on the console for you to look at.
+
+2. ./project4_client simulate see_tweet_rate NUM_CLIENTS
+    Starts a simulation with the given number of users (limits to this value are included in the report). The 'see_tweet_rate' flag allows the printing of _running average of number of tweets/second_ to be printed on the console. It is printed in periodic intervals of time (based on the print_every parameter as explained in the report)
+
+3. ./project4_client subscribe_to USERID_1 USERID_2
+    Subscribes USERID_1 to the twitter activity of USERID_2. Userids can be anything between [0, NUM_CLIENTS].
+
+4. ./project4_client feed USERID
+    Returns the feed of the provided USERID. USERID can be anything between [0, NUM_CLIENTS]. Make sure the USERID is subscribed to at least 1 other user so as to get a non-empty feed! 
+
+5. ./project4_client sample_hashtags
+    Prints the hashtags of all the tweets seen so far. You can pick any of these and use it as an argument in the next command
+
+6. ./project4_client tweets_with_hashtag HASHTAG  **HASHTAG should be WITHOUT the '#' symbol**
+    Provided a hashtag, it outputs ALL the tweets sent so far to the engine that have the hashtag. Make sure you do not include the '#' in the command line argument!
+
+7. ./project4_client sample_mentions
+    Prints the mentions of all the tweets sent so far.You can pick any of these and use it as an argument in the next command
+8. ./project4_client tweets_with_mention MENTION
+    Provided a mention, it outputs ALL the tweets sent so far to the engine that have that mention.
