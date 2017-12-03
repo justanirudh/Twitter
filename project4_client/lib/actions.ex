@@ -32,7 +32,6 @@ defmodule Actions do
     end
 
     def get_tweets_with_hashtag(hashtag, engine_pid) do
-        IO.inspect hashtag
         GenServer.call(engine_pid, {:hashtag, :hashtag, hashtag})
     end
 

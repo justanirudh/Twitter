@@ -11,7 +11,7 @@ defmodule TwitterClient do
 # ./project4_client tweets_with_hashtag HASHTAG  #(HASHTAG should be WITHOUT the '#' symbol)
 # ./project4_client sample_mentions
 # ./project4_client tweets_with_mention MENTION
-# ./project4_client feed USERID #TODO: only include this if supported the subscription (30 min.)
+# ./project4_client feed USERID
 
   def main(args) do
 
@@ -41,7 +41,6 @@ defmodule TwitterClient do
       "sample_hashtags" -> Actions.get_sample_hashtags(engine_pid)
       "tweets_with_hashtag" -> 
         hashtag = Enum.at(args, 1)
-        IO.inspect hashtag
         Actions.get_tweets_with_hashtag("#" <> hashtag, engine_pid)
       "sample_mentions" ->Actions.get_sample_mentions(engine_pid)
       "tweets_with_mention" ->
