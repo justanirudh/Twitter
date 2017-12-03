@@ -19,6 +19,10 @@ defmodule Actions do
         print_tweet_rate()
     end
 
+    def make_em_tweet(num_users, client_pids, tweets, see) do
+        0..num_users-1 |> Enum.each(fn(idx) -> GenServer.cast(Enum.at(client_pids, idx), {:tweet, tweets, idx, see}) end )
+    end
+
     def subscribe_to(userId, subscribeToId, engine_pid) do
         GenServer.call(engine_pid, {:subscribe, userId, subscribeToId})   
     end
@@ -28,6 +32,7 @@ defmodule Actions do
     end
 
     def get_tweets_with_hashtag(hashtag, engine_pid) do
+        IO.inspect hashtag
         GenServer.call(engine_pid, {:hashtag, :hashtag, hashtag})
     end
 
@@ -80,15 +85,14 @@ defmodule Actions do
     
         #populate subscribers size for each client to simulate zipf distribution for tweets
         # Enum.each(client_pids, fn(pid) -> GenServer.call(pid, :get_subscribers_size) end )
-    
-        IO.inspect "Users started tweeting"
         
         #make clients tweet by zipf law (80-20)
-        0..num_users-1 |> Enum.each(fn(idx) -> GenServer.cast(Enum.at(client_pids, idx), {:tweet, tweets, idx, see}) end )
-    
-        IO.inspect "All users started tweeting"
+        Task.start(Actions, :make_em_tweet, [num_users, client_pids, tweets, see])
+
+        IO.inspect "Users have started tweeting"
     
         if(see == :see_tweet_rate) do
+            IO.inspect "Waiting for first rate-results to arrive"
             print_tweet_rate()
         else
             #loop infinitely

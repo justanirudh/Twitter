@@ -27,16 +27,21 @@ defmodule MentionTweetIds do
                 :ets.insert(:mt_table, {mention, [curr_tweet_id | list]})
             end
         end)
-        Enum.each(mentions, fn(ment) -> 
-            IO.inspect "mention-tweetid table entry:"  
-            IO.inspect :ets.lookup(:mt_table, ment)  
-        end)
+        # Enum.each(mentions, fn(ment) -> 
+        #     IO.inspect "mention-tweetid table entry:"  
+        #     IO.inspect :ets.lookup(:mt_table, ment)  
+        # end)
         {:reply, :ok, state}
     end
 
     #get
     def handle_call({:get, :mention, mention}, _from, state) do
-        list = :ets.lookup(:mt_table, mention) |> Enum.at(0) |> elem(1)     
+        row = :ets.lookup(:mt_table, mention)
+        list = if row == nil do
+            []
+        else
+            row |> Enum.at(0) |> elem(1)     
+        end    
         {:reply, list, state}
     end
 

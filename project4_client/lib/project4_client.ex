@@ -6,7 +6,7 @@ defmodule TwitterClient do
 # arguments
 # ./project4_client simulate see_tweets NUM_CLIENTS
 # ./project4_client simulate see_tweet_rate NUM_CLIENTS
-# ./project4_client subscribe_to USERID_1 USERID_1
+# ./project4_client subscribe_to USERID_1 USERID_2
 # ./project4_client sample_hashtags
 # ./project4_client tweets_with_hashtag HASHTAG
 # ./project4_client sample_mentions
@@ -41,6 +41,7 @@ defmodule TwitterClient do
       "sample_hashtags" -> Actions.get_sample_hashtags(engine_pid)
       "tweets_with_hashtag" -> 
         hashtag = Enum.at(args, 1)
+        IO.inspect hashtag
         Actions.get_tweets_with_hashtag(hashtag, engine_pid)
       "sample_mentions" ->Actions.get_sample_mentions(engine_pid)
       "tweets_with_mention" ->

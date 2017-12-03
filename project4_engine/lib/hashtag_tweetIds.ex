@@ -27,16 +27,21 @@ defmodule HashtagTweetIds do
                 :ets.insert(:ht_table, {hashtag, [curr_tweet_id | list]})
             end
         end)
-        Enum.each(hashtags, fn(htag) -> 
-            IO.inspect "hashtag-tweetid table entry:"  
-            IO.inspect :ets.lookup(:ht_table, htag)  
-        end)
+        # Enum.each(hashtags, fn(htag) -> 
+        #     IO.inspect "hashtag-tweetid table entry:"  
+        #     IO.inspect :ets.lookup(:ht_table, htag)  
+        # end)
         {:reply, :ok, state}
     end
 
     #get hashtag
     def handle_call({:get, :hashtag, hashtag}, _from, state) do
-        list = :ets.lookup(:ht_table, hashtag) |> Enum.at(0) |> elem(1)     
+        row = :ets.lookup(:ht_table, hashtag)
+        list = if row == nil do
+            []
+        else
+            row |> Enum.at(0) |> elem(1)     
+        end
         {:reply, list, state}
     end
 
