@@ -105,7 +105,6 @@ defmodule Engine do
     end
 
     #tweet-tested
-    #TODO: remove timestamp field as tweetid is monotonic?
     def handle_call({:tweet, userId, tweet}, _from,state) do
         curr_time = System.monotonic_time(:microsecond)
         hashtags = get_hashtags(tweet)

@@ -62,8 +62,8 @@ defmodule UserIdSubscribedtoSubscribers do
             :ets.insert(:uss_table, {subscribeToId, subscribed_to_list, [ userId | subscribers_list]})    
         end
 
-        IO.inspect :ets.lookup(:uss_table, userId)
-        IO.inspect :ets.lookup(:uss_table, subscribeToId)
+        # IO.inspect :ets.lookup(:uss_table, userId)
+        # IO.inspect :ets.lookup(:uss_table, subscribeToId)
 
         {:reply, :ok,  state}
     end

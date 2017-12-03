@@ -27,10 +27,6 @@ defmodule HashtagTweetIds do
                 :ets.insert(:ht_table, {hashtag, [curr_tweet_id | list]})
             end
         end)
-        # Enum.each(hashtags, fn(htag) -> 
-        #     IO.inspect "hashtag-tweetid table entry:"  
-        #     IO.inspect :ets.lookup(:ht_table, htag)  
-        # end)
         {:reply, :ok, state}
     end
 

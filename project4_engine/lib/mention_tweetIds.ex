@@ -27,10 +27,6 @@ defmodule MentionTweetIds do
                 :ets.insert(:mt_table, {mention, [curr_tweet_id | list]})
             end
         end)
-        # Enum.each(mentions, fn(ment) -> 
-        #     IO.inspect "mention-tweetid table entry:"  
-        #     IO.inspect :ets.lookup(:mt_table, ment)  
-        # end)
         {:reply, :ok, state}
     end
 
