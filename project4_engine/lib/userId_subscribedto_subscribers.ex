@@ -1,4 +1,4 @@
-defmodule UserIdSubscribedtoSubscribers do
+defmodule UserIdSubscribedto do
     use GenServer
     #schema: userid string, subscribed_to_id []
 
