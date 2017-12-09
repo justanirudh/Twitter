@@ -10,7 +10,7 @@ defmodule UserIdSubscribedtoSubscribers do
 
     #insert
     def handle_call({:insert, userId}, _from, state) do
-        :ets.insert(:uss_table, {userId, [], []})
+        :ets.insert(:uss_table, {userId, []})
         {:reply, :ok, state}
     end
 
@@ -31,9 +31,7 @@ defmodule UserIdSubscribedtoSubscribers do
         else
             #add to subscribed_to list of userid
             subscribed_to_list = :ets.lookup(:uss_table, userId) |> Enum.at(0) |> elem(1)        
-            #delete row
-            :ets.delete(:uss_table, userId)
-            #add new row
+            #replace row
             :ets.insert(:uss_table, {userId, [subscribeToId | subscribed_to_list]})
         end
         {:reply, :ok,  state}
